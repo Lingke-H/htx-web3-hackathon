@@ -1,6 +1,6 @@
 # Veil Scout
 
-> 用积分预测，用 zkID 证明唯一性，通过发现真正的 Builder 来赚取奖励。
+> 用积分（credits）预测，用 zkID 证明唯一性，通过发现（scout）真正的 Builder 来赚取奖励。
 
 **开发周期：** 60 天（AI x Web3 黑客松）
 
