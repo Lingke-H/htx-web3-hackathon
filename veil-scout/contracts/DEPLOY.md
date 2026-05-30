@@ -47,7 +47,7 @@ ARBISCAN_API_KEY=...
 ### 2.1 Base Sepolia
 
 ```bash
-cd /Users/wangjiayi/Documents/New\ project\ 7/HTX-Web3-Hackathon/veil-scout/contracts
+cd veil-scout/contracts
 
 source .env
 
@@ -99,7 +99,7 @@ require(block.chainid == 31_337, "MockData is intended for local Anvil");
 本地填充 mock 数据：
 
 ```bash
-cd /Users/wangjiayi/Documents/New\ project\ 7/HTX-Web3-Hackathon/veil-scout/contracts
+cd veil-scout/contracts
 
 # Step 1: seed（创建 market + claim + buy + void）
 forge script script/MockData.s.sol:MockData \

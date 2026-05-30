@@ -5,3 +5,6 @@ broadcast/
 .env.*
 deployment.json
 mock-data.json
+.venv/
+slither-report.txt
+*.log

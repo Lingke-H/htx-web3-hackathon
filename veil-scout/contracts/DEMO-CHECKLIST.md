@@ -7,7 +7,7 @@
 ## 一、环境检查
 
 ```bash
-cd /Users/wangjiayi/Documents/New\ project\ 7/HTX-Web3-Hackathon/veil-scout/contracts
+cd veil-scout/contracts
 
 # 1. 编译
 forge build
@@ -15,7 +15,7 @@ forge build
 
 # 2. 测试
 forge test --summary
-# 预期：34 passed, 0 failed
+# 预期：68 passed, 0 failed
 
 # 3. ABI 完整
 ls abi/

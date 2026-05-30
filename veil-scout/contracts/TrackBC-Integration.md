@@ -2,7 +2,7 @@
 
 Track A contracts live under:
 
-`/Users/wangjiayi/Documents/New project 7/HTX-Web3-Hackathon/veil-scout/contracts`
+`veil-scout/contracts`
 
 ## ABI Files
 
@@ -15,7 +15,7 @@ Track A contracts live under:
 Regenerate ABI after contract changes:
 
 ```bash
-cd /Users/wangjiayi/Documents/New\ project\ 7/HTX-Web3-Hackathon/veil-scout/contracts
+cd veil-scout/contracts
 forge build
 mkdir -p abi
 jq '.abi' out/CreditLedger.sol/CreditLedger.json > abi/CreditLedger.json
@@ -176,6 +176,17 @@ Market.getPosition(marketId, scoutId)
 Market.getYesOdds(marketId)
 CreditLedger.freeBalance(scoutId, seasonId)
 Leaderboard.scores(scoutId, seasonId)
+Leaderboard.getScore(scoutId, seasonId)
+Leaderboard.getTopN(seasonId, topN)        // returns (scoutIds[], scores[])
+Leaderboard.getSeasonParticipantCount(seasonId)
+```
+
+**Leaderboard ranking example:**
+
+```solidity
+// Get top 10 scouts for season 0
+(bytes32[] memory scouts, int256[] memory scores) = leaderboard.getTopN(0, 10);
+// scouts[0] is rank #1, scores[0] is their total score
 ```
 
 ## Events For Indexing

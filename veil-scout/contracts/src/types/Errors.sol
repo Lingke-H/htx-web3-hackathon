@@ -39,3 +39,4 @@ error NoRemainderToSweep(uint256 marketId);
 error InvalidAmount();
 
 error Unauthorized();
+error ReentrantCall();
