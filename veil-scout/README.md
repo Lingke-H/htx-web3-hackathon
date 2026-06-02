@@ -7,7 +7,8 @@ Implementation workspace for Veil Scout.
 ```text
 veil-scout/
 ├── track-a-contracts/   # Track A: P0 smart contracts
-└── track-b-ai-oracle/     # Track B: AI analyst + oracle CLI
+├── track-b-ai-oracle/   # Track B: AI analyst + oracle CLI
+└── frontend/            # Track C: Next.js demo frontend
 ```
 
 ## Track A: Contracts
@@ -32,4 +33,16 @@ Useful commands after creating the Python environment:
 cd veil-scout/track-b-ai-oracle
 python -m track_b.cli analyze --project data/projects/agentpay.json
 python -m track_b.cli verify --project data/projects/agentpay.json --market-id 0
+```
+
+## Track C: Frontend
+
+See `frontend/README.md`.
+
+Useful commands after installing Node dependencies:
+
+```bash
+cd veil-scout/frontend
+npm run build
+npm run dev
 ```

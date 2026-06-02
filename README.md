@@ -11,7 +11,8 @@ Veil Scout is a credit-based project-discovery prediction protocol. Scouts use n
 ├── docs/                  # Product, roadmap, P0 specs, reviews, notes
 └── veil-scout/
     ├── track-a-contracts/         # Track A: Foundry smart contracts, ABI, deploy scripts
-    └── track-b-ai-oracle/           # Track B: AI analyst + oracle Python CLI
+    ├── track-b-ai-oracle/         # Track B: AI analyst + oracle Python CLI
+    └── frontend/                  # Track C: Next.js demo frontend
 ```
 
 ## Tracks
@@ -25,7 +26,9 @@ Veil Scout is a credit-based project-discovery prediction protocol. Scouts use n
   - Python CLI for AI reports, GitHub/on-chain verification, market creation, and settlement.
   - Setup and command usage are in `veil-scout/track-b-ai-oracle/README.md`.
 
-- **Track C: Frontend** is not implemented in this repo yet.
+- **Track C: Frontend** lives in `veil-scout/frontend`.
+  - Next.js demo app for the judge-facing Veil Scout experience.
+  - Setup and command usage are in `veil-scout/frontend/README.md`.
 
 ## What P0 Is / Is Not
 
