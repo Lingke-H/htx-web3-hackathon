@@ -13,14 +13,14 @@
 | 框架 | **Foundry (forge + cast)** | 编译快，原生 fuzz 测试，Solidity 原生测试 |
 | 本地链 | **Anvil**（Foundry 自带） | 可 fork 主网做集成测试 |
 | 部署目标 | **Base (L2)** 或 **Arbitrum Sepolia**（测试网） | Gas 低，出块快 |
-| 数学库 | **PRBMath v4**（可选） | 仅 V2 实现 LMSR 时需要；MVP 用简化池子即可 |
+| 数学库 | **PRBMath v4**（可选） | P0 不需要；仅未来版本需要更复杂评分数学时再引入 |
 
 ### AI 分析师（模块 3）
 | 组件 | 工具 | 选型理由 |
 |------|------|---------|
 | LLM API | **Claude API** 或 **OpenAI GPT-4o** | 项目分析：GitHub、合约、链上数据、里程碑可行性 |
-| Agent 脚本 | **Python + web3.py** | 轻量级：读项目数据 → LLM 分析 → 上链设初始赔率 |
-| 钱包 | **本地私钥**（仅测试网） | Agent 签名交易，设定初始市场赔率 |
+| Agent 脚本 | **Python + web3.py** | 轻量级：读项目数据 → LLM 分析 → 生成报告 → 结算已验证市场 |
+| 钱包 | **本地私钥**（仅测试网） | 预言机用持有 `SETTLEMENT_ROLE` 的钱包签名结算交易 |
 | 数据接入 | **GitHub API + Etherscan API + IPFS 网关** | 获取项目材料用于分析 |
 
 ### zkID 防女巫（模块 1）
@@ -84,7 +84,6 @@ enum Status { OPEN, TRADING, SETTLING, SETTLED }
 function buy(uint256 marketId, Side side, uint256 amount) external;
 function getPrice(uint256 marketId) external view returns (uint256 yesPrice, uint256 noPrice);
 function getPosition(uint256 marketId, address user) external view returns (uint256 yesAmount, uint256 noAmount);
-function seedInitialOdds(uint256 marketId, uint256 yesProbability) external; // AI 调用
 event Trade(uint256 indexed marketId, address indexed user, Side side, uint256 amount, uint256 newPrice);
 
 // Settlement.sol
@@ -106,6 +105,8 @@ event RewardClaimed(address indexed user, uint256 seasonId, uint256 amount);
 {
   "marketId": 1,
   "probability": 0.64,
+  "aiPriorProbability": 0.64,
+  "aiPriorLabel": "AI Prior",
   "confidence": "medium",
   "bullish": ["Demo 已上线", "合约已部署到主网"],
   "bearish": ["活跃用户少", "无安全审计"],
@@ -152,7 +153,7 @@ MAX_PROBABILITY = 0.95
 |------|------|
 | 1-2 | 搭建 Foundry 项目 + 项目结构。导出 ABI JSON 文件给 Track B/C 使用（即使合约未完成，ABI 接口已固定） |
 | 3-5 | 实现 `ScoutCredits.sol`：不可转让积分代币，按赛季 mint。先用 mock zkID（简单地址白名单） |
-| 6-9 | 实现 `Market.sol`：用积分买 YES/NO，单边持仓规则，单市场积分上限，状态机（OPEN → TRADING → SETTLING → SETTLED）。实现简化 AMM 定价 |
+| 6-9 | 实现 `Market.sol`：用积分买 YES/NO，单边持仓规则，单市场积分上限，状态机（OPEN → TRADING → SETTLING → SETTLED）。Crowd Odds 来自 YES/NO stake ratio，不做 AMM 定价 |
 | 10-12 | 实现 `MarketFactory.sol`（从里程碑创建市场）+ `Settlement.sol`（owner 触发的通过/未通过，积分重分配给赢家） |
 | 13-14 | Foundry 集成测试：创建赛季 → 领取积分 → 创建市场 → 买 YES/NO → 结算 → 验证余额。部署到 Arbitrum Sepolia |
 
@@ -163,7 +164,7 @@ MAX_PROBABILITY = 0.95
 | 天数 | 任务 |
 |------|------|
 | 1-3 | 搭建 Python 项目。搭建数据接入层：GitHub API（提交、PR、贡献者）、Etherscan API（合约事件、交易统计） |
-| 4-7 | 搭建 AI 分析师核心：项目数据 → LLM 提示词 → 结构化 JSON 输出（概率 + 看多/看空理由 + 置信度）。用 Claude 或 GPT-4o |
+| 4-7 | 搭建 AI 分析师核心：项目数据 → LLM 提示词 → 结构化 JSON 输出（AI Prior + 看多/看空理由 + 置信度）。用 Claude 或 GPT-4o |
 | 8-10 | 加 sanity check（概率钳制在 0.05–0.95）、LLM 失败回退（默认 0.50）、结构化日志。设计 Scout Score 公式（虚拟 PnL + 准确率 + 早期发现 + 证据 - 惩罚） |
 | 11-14 | 用 3-5 个样本项目测试：AI 生成报告 → 验证输出质量。搭建 `seedMarket()` 调用脚本（等 Track A 部署后对接，此阶段可先用本地 Anvil mock） |
 
@@ -231,7 +232,7 @@ MAX_PROBABILITY = 0.95
 
 ```
 全链路集成测试：
-zkID 验证 → 领取积分 → AI 设置市场 → Scout 交易
+zkID 验证 → 领取积分 → AI Prior 报告 → Scout 交易
 → 证据提交 → 截止日 → 预言机结算 → 排行榜更新 → 奖励领取
 
 如果这个流程完整跑通 = 功能完整 ✅

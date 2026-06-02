@@ -218,7 +218,7 @@ If the same person tries to claim with a different wallet, the nullifier reveals
 
 # 6. AI: First Analyst, Not Judge
 
-AI is not the arbiter. AI is the **first analyst and initial odds generator**.
+AI is not the arbiter. AI is the **first analyst** that produces an off-chain AI Prior.
 
 When a project is submitted, the AI reads:
 
@@ -395,7 +395,7 @@ High-reputation scouts → higher credit allocation next season + whitelists
 ### Flywheel
 
 ```
-AI seeds initial odds
+AI produces an AI Prior
       ↓
 Scouts correct mispricing with credits
       ↓
@@ -439,10 +439,10 @@ Prevent all-in luck-based leaderboard gaming
 
 ```
 Ingest project materials (description, GitHub, contract, on-chain data)
-Generate initial probability estimate
+Generate AI Prior probability estimate
 Output structured bullish / bearish analysis
 Assess whether proposed milestone is objectively settleable
-Set initial market odds
+Do not set on-chain market odds
 ```
 
 ## Module 4: Prediction Arena
@@ -450,16 +450,12 @@ Set initial market odds
 ```
 Create YES / NO markets for each project milestone
 Users buy positions with Scout Credits
-Market price adjusts with trading activity
+Crowd Odds adjust with YES/NO credit stake
 Support evidence submission (links, screenshots, on-chain analysis)
 Display real-time odds and position sizes
 ```
 
-**AMM note:** Production version can use LMSR for mathematically rigorous pricing:
-
-$$ C(q) = b \ln \left( \sum_{i \in \{YES, NO\}} \exp(q_i / b) \right) $$
-
-Hackathon MVP can use a simplified constant-product or fixed-ratio pool to reduce implementation complexity.
+**Pricing note:** P0 does not use AMM/LMSR or external LPs. Crowd Odds are a display signal derived from YES/NO credit stake, while payouts are settled by the credit redistribution rules.
 
 ## Module 5: Settlement Oracle
 

@@ -2,7 +2,7 @@
 
 Track A contracts live under:
 
-`veil-scout/contracts`
+`veil-scout/track-a-contracts`
 
 ## ABI Files
 
@@ -15,7 +15,7 @@ Track A contracts live under:
 Regenerate ABI after contract changes:
 
 ```bash
-cd veil-scout/contracts
+cd veil-scout/track-a-contracts
 forge build
 mkdir -p abi
 jq '.abi' out/CreditLedger.sol/CreditLedger.json > abi/CreditLedger.json

@@ -450,16 +450,12 @@ Scout 用积分纠正错误定价
 ```
 为每个项目里程碑创建 YES / NO 市场
 用户用 Scout Credits 买入仓位
-市场价格随交易活动调整
+Crowd Odds 随 YES/NO 积分 stake 调整
 支持证据提交（链接、截图、链上分析）
 实时显示赔率和持仓规模
 ```
 
-**AMM 说明：** 生产版本可以使用 LMSR 进行数学上严谨的定价：
-
-$$ C(q) = b \ln \left( \sum_{i \in \{YES, NO\}} \exp(q_i / b) \right) $$
-
-黑客松 MVP 可以使用简化的恒定乘积或固定比例池来降低实现复杂度。
+**定价说明：** P0 不使用 AMM/LMSR，也不引入外部 LP。Crowd Odds 只是根据 YES/NO 积分 stake 推导出的展示信号，真实结算由积分重分配规则完成。
 
 ## 模块 5：结算预言机
 

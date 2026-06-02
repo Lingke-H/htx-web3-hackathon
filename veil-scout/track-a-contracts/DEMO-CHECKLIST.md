@@ -7,7 +7,7 @@
 ## 一、环境检查
 
 ```bash
-cd veil-scout/contracts
+cd veil-scout/track-a-contracts
 
 # 1. 编译
 forge build
