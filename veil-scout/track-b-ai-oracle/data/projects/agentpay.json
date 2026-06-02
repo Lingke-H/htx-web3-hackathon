@@ -1,0 +1,26 @@
+{
+  "slug": "agentpay",
+  "name": "AgentPay",
+  "description": "Demo AI-agent payment protocol used for Veil Scout Track B local oracle testing.",
+  "github_repo": "openai/openai-python",
+  "contract_addresses": [
+    "0x0000000000000000000000000000000000000000"
+  ],
+  "milestone": "Complete at least 0 verified contract events before the resolution deadline.",
+  "deadline": 1782000000,
+  "season_id": 0,
+  "trading_deadline": 1781913600,
+  "resolution_deadline": 1782000000,
+  "force_void_deadline": 1782604800,
+  "project_owner": "0x0000000000000000000000000000000000001000",
+  "verification_rule": {
+    "type": "contract_event_count",
+    "target": 0,
+    "contract": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "event_topic0": null,
+      "from_block": 0,
+      "to_block": "latest"
+    }
+  }
+}

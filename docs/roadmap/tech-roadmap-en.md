@@ -13,14 +13,14 @@
 | Framework | **Foundry (forge + cast)** | Fast compilation, native fuzzing, Solidity-native tests |
 | Local chain | **Anvil** (ships with Foundry) | Fork mainnet for integration tests |
 | Deployment target | **Base (L2)** or **Arbitrum Sepolia** (testnet) | Low gas, fast finality |
-| Math library | **PRBMath v4** (optional) | Only needed if implementing LMSR in V2; MVP can use simpler pool math |
+| Math library | **PRBMath v4** (optional) | Not needed for P0; keep only if a future version adds advanced scoring math |
 
 ### AI Analyst (Module 3)
 | Component | Tool | Why |
 |-----------|------|-----|
 | LLM API | **Claude API** or **OpenAI GPT-4o** | Project analysis: GitHub, contract, on-chain data, milestone feasibility |
-| Agent script | **Python + web3.py** | Lightweight: read project data → LLM analysis → set initial odds on-chain |
-| Wallet | **Local private key** (testnet only) | Agent signs transactions to seed initial market odds |
+| Agent script | **Python + web3.py** | Lightweight: read project data → LLM analysis → create reports → settle verified markets |
+| Wallet | **Local private key** (testnet only) | Oracle signs settlement transactions with `SETTLEMENT_ROLE` |
 | Data ingestion | **GitHub API + Etherscan API + IPFS gateway** | Fetch project materials for analysis |
 
 ### zkID Anti-Sybil (Module 1)
@@ -84,7 +84,6 @@ enum Status { OPEN, TRADING, SETTLING, SETTLED }
 function buy(uint256 marketId, Side side, uint256 amount) external;
 function getPrice(uint256 marketId) external view returns (uint256 yesPrice, uint256 noPrice);
 function getPosition(uint256 marketId, address user) external view returns (uint256 yesAmount, uint256 noAmount);
-function seedInitialOdds(uint256 marketId, uint256 yesProbability) external; // Called by AI
 event Trade(uint256 indexed marketId, address indexed user, Side side, uint256 amount, uint256 newPrice);
 
 // Settlement.sol
@@ -106,6 +105,8 @@ event RewardClaimed(address indexed user, uint256 seasonId, uint256 amount);
 {
   "marketId": 1,
   "probability": 0.64,
+  "aiPriorProbability": 0.64,
+  "aiPriorLabel": "AI Prior",
   "confidence": "medium",
   "bullish": ["Demo is live", "Contract deployed on mainnet"],
   "bearish": ["Low active users", "No security audit"],
@@ -152,7 +153,7 @@ MAX_PROBABILITY = 0.95
 |-----|------|
 | 1-2 | Set up Foundry project + project structure. Export ABI JSON files for Track B/C (even if contracts are incomplete, the ABI interface is fixed) |
 | 3-5 | Implement `ScoutCredits.sol`: non-transferable credit token, per-season mint. Use mock zkID for now (simple address whitelist) |
-| 6-9 | Implement `Market.sol`: buy YES/NO with credits, single-side position rule, per-market credit cap, state machine (OPEN → TRADING → SETTLING → SETTLED). Implement simplified AMM pricing |
+| 6-9 | Implement `Market.sol`: buy YES/NO with credits, single-side position rule, per-market credit cap, state machine (OPEN → TRADING → SETTLING → SETTLED). Crowd Odds are derived from YES/NO stake ratio, not AMM pricing |
 | 10-12 | Implement `MarketFactory.sol` (create markets from milestone submissions) + `Settlement.sol` (owner-triggered PASS/FAIL, credit redistribution to winners) |
 | 13-14 | Foundry integration tests: create season → claim credits → create market → buy YES/NO → settle → verify balances. Deploy to Arbitrum Sepolia |
 
@@ -163,7 +164,7 @@ MAX_PROBABILITY = 0.95
 | Day | Task |
 |-----|------|
 | 1-3 | Set up Python project. Build data ingestion layer: GitHub API (commits, PRs, contributors), Etherscan API (contract events, tx count) |
-| 4-7 | Build AI analyst core: project data → LLM prompt → structured JSON output (probability + bullish/bearish + confidence). Use Claude or GPT-4o |
+| 4-7 | Build AI analyst core: project data → LLM prompt → structured JSON output (AI Prior + bullish/bearish + confidence). Use Claude or GPT-4o |
 | 8-10 | Add sanity checks (clamp 0.05–0.95), LLM failure fallback (default 0.50), structured logging. Design Scout Score formula (PnL + accuracy + early discovery + evidence - penalties) |
 | 11-14 | Test with 3-5 sample projects: AI generates reports → verify output quality. Build `seedMarket()` caller script (integrate with Track A after deployment; use local Anvil mock for now) |
 
@@ -231,7 +232,7 @@ Duration: 2-3 hours
 
 ```
 Full pipeline integration test:
-zkID verify → claim credits → AI seeds market → scout trades
+zkID verify → claim credits → AI Prior report → scout trades
 → evidence submitted → deadline → oracle settles → leaderboard updates → rewards claimable
 
 If this flow runs end-to-end = Feature Complete ✅
@@ -304,8 +305,8 @@ veil-scout/
 │   │   └── Integration.t.sol  # Full season lifecycle
 │   └── foundry.toml
 ├── ai-analyst/                 # Python AI analyst
-│   ├── analyst.py             # Main: watch new projects → analyze → seed odds
-│   ├── llm.py                 # LLM API wrapper (project data → probability + report)
+│   ├── analyst.py             # Main: watch new projects → analyze → write AI Prior reports
+│   ├── llm.py                 # LLM API wrapper (project data → AI Prior + report)
 │   ├── data_ingestion.py      # Fetch GitHub / Etherscan / IPFS data
 │   └── requirements.txt
 ├── oracle/                     # Settlement oracle
