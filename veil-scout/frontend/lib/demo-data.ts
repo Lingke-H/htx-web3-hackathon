@@ -8,6 +8,44 @@ export const localeOptions = [
   { value: "zh" as const, shortLabel: "中", label: "中文" },
 ];
 
+export type DemoMarket = {
+  marketId: number;
+  projectSlug: string;
+  title: string;
+  status: "TRADING" | "SETTLED";
+  result: "YES" | "NO" | null;
+  trustBoundary: "P0 trusted oracle";
+  preferredSide: string;
+  exposure: string;
+  close: string;
+  tone: StatusTone;
+  aiReport: {
+    aiPriorLabel: "AI Prior";
+    aiPriorProbability: number;
+    confidence: "low" | "medium" | "high";
+    bullish: string[];
+    bearish: string[];
+    riskFlags: string[];
+  };
+  crowdOdds: {
+    yesProbabilityBps: number;
+    source: "Market.getYesOdds";
+  };
+  verificationCriteria: {
+    type: "contract_event_count" | "github_merged_prs";
+    target: number;
+    dataSource: string;
+    formula: string;
+  };
+  oracleReport: {
+    passed: boolean;
+    settlementRationale: string;
+    observedMetrics: Record<string, string | number | boolean>;
+    dataSourceStatus: Record<string, string>;
+    limitations: string[];
+  } | null;
+};
+
 const englishContent = {
   shell: {
     brandLabel: "HTX Web3 Hackathon",
@@ -130,47 +168,123 @@ const englishContent = {
     title: "Active market book",
     description:
       "Each row answers an operator question: increase size, hold exposure, or wait for settlement.",
-    headers: ["Market", "Side", "Exposure", "Avg odds", "Settlement", "Close"],
-    rows: [
-      {
-        market: "HTX Agent SDK Integration",
-        side: "YES",
-        exposure: "900",
-        avgOdds: "61%",
-        aiView: "Constructive",
-        settlement: "Trading",
-        close: "06h 18m",
-        tone: "accent" as const,
-      },
-      {
-        market: "zkPass Milestone Audit",
-        side: "NO",
-        exposure: "500",
-        avgOdds: "43%",
-        aiView: "Schedule risk",
-        settlement: "Trading",
-        close: "19h 05m",
-        tone: "caution" as const,
-      },
-      {
-        market: "VeilPay Wallet Growth Sprint",
-        side: "Watch",
-        exposure: "0",
-        avgOdds: "74%",
-        aiView: "Strong YES",
-        settlement: "Settlement soon",
-        close: "02h 43m",
-        tone: "positive" as const,
-      },
-    ],
+    headers: ["Market", "Side", "Exposure", "Crowd Odds", "Settlement", "Close"],
   },
+  demoMarkets: [
+    {
+      marketId: 0,
+      projectSlug: "agentpay",
+      title: "Will AgentPay emit at least 10 valid payment events before the deadline?",
+      status: "TRADING",
+      result: null,
+      trustBoundary: "P0 trusted oracle",
+      preferredSide: "YES",
+      exposure: "900",
+      close: "06h 18m",
+      tone: "accent" as const,
+      aiReport: {
+        aiPriorLabel: "AI Prior",
+        aiPriorProbability: 0.64,
+        confidence: "medium" as const,
+        bullish: ["Recent commits and demo contract activity are visible."],
+        bearish: ["User diversity is not yet verified."],
+        riskFlags: ["possible wash activity"],
+      },
+      crowdOdds: {
+        yesProbabilityBps: 5800,
+        source: "Market.getYesOdds" as const,
+      },
+      verificationCriteria: {
+        type: "contract_event_count" as const,
+        target: 10,
+        dataSource: "AgentPay payment contract logs",
+        formula: "PASS if matching event count >= 10 before resolution deadline",
+      },
+      oracleReport: null,
+    },
+    {
+      marketId: 1,
+      projectSlug: "zkdocs",
+      title: "Will ZKDocs merge at least 5 qualifying PRs before the deadline?",
+      status: "SETTLED",
+      result: "YES",
+      trustBoundary: "P0 trusted oracle",
+      preferredSide: "YES",
+      exposure: "500",
+      close: "Claim ready",
+      tone: "positive" as const,
+      aiReport: {
+        aiPriorLabel: "AI Prior",
+        aiPriorProbability: 0.71,
+        confidence: "high" as const,
+        bullish: ["Maintainer activity is consistent.", "Multiple contributors are active."],
+        bearish: ["Release packaging is still manual."],
+        riskFlags: [],
+      },
+      crowdOdds: {
+        yesProbabilityBps: 6900,
+        source: "Market.getYesOdds" as const,
+      },
+      verificationCriteria: {
+        type: "github_merged_prs" as const,
+        target: 5,
+        dataSource: "GitHub merged pull requests",
+        formula: "PASS if merged PR count >= 5 before resolution deadline",
+      },
+      oracleReport: {
+        passed: true,
+        settlementRationale: "Observed 7 merged pull requests for demo/zkdocs; target is 5. Result is PASS.",
+        observedMetrics: { mergedPrs: 7, target: 5 },
+        dataSourceStatus: { github: "available" },
+        limitations: ["P0 verifier counts merged PRs only; it does not judge PR quality or production deployment."],
+      },
+    },
+    {
+      marketId: 2,
+      projectSlug: "airdrop-ai",
+      title: "Will AirdropAI emit at least 100 valid usage events before the deadline?",
+      status: "SETTLED",
+      result: "NO",
+      trustBoundary: "P0 trusted oracle",
+      preferredSide: "NO",
+      exposure: "0",
+      close: "Failed",
+      tone: "caution" as const,
+      aiReport: {
+        aiPriorLabel: "AI Prior",
+        aiPriorProbability: 0.43,
+        confidence: "low" as const,
+        bullish: ["Contract is deployed."],
+        bearish: ["GitHub activity is sparse.", "Usage pattern is concentrated."],
+        riskFlags: ["manual review required", "possible wash activity"],
+      },
+      crowdOdds: {
+        yesProbabilityBps: 7200,
+        source: "Market.getYesOdds" as const,
+      },
+      verificationCriteria: {
+        type: "contract_event_count" as const,
+        target: 100,
+        dataSource: "AirdropAI usage contract logs",
+        formula: "PASS if matching event count >= 100 before resolution deadline",
+      },
+      oracleReport: {
+        passed: false,
+        settlementRationale:
+          "Observed 18 matching contract events for 0x0000000000000000000000000000000000000000; target is 100. Result is FAIL.",
+        observedMetrics: { eventCount: 18, target: 100 },
+        dataSourceStatus: { chain: "available" },
+        limitations: ["P0 verifier counts matching logs only; it does not yet filter unique wallets or wash activity."],
+      },
+    },
+  ] satisfies DemoMarket[],
   agent: {
-    eyebrow: "Agent explanation",
+    eyebrow: "AI Prior explanation",
     recommendation: "Release at most 350 SCOUT into YES",
-    confidence: "63%",
-    title: "Why the agent is asking for manual approval",
+    confidence: "64%",
+    title: "Why the AI Prior still asks for manual scout approval",
     summary:
-      "The AI view improved after new merged work landed, but confidence is not high enough to justify a blind full-size order. This panel explains why the suggested action is capped.",
+      "The AI Prior improved after new merged work landed, but confidence is not high enough to justify a blind full-size order. This panel explains why the suggested action is capped.",
     factors: [
       {
         label: "Merged milestone work",
@@ -248,7 +362,7 @@ const englishContent = {
     eyebrow: "Recent activity",
     title: "Operator and chain activity",
     description:
-      "Transaction hashes, rule checks, and agent refreshes appear in one stream so the demo feels operational.",
+      "Transaction hashes, rule checks, and AI Prior refreshes appear in one stream so the demo feels operational.",
     items: [
       {
         time: "00:14",
@@ -259,9 +373,9 @@ const englishContent = {
       },
       {
         time: "00:06",
-        title: "AI recomputed odds for market_012",
+        title: "AI Prior refreshed for market_012",
         hash: "job_014",
-        note: "Confidence moved from 59% to 63% after merged milestone work.",
+        note: "AI Prior moved from 59% to 64% after merged milestone work.",
         tone: "positive" as const,
       },
       {
@@ -287,7 +401,7 @@ const englishContent = {
       {
         label: "Risk level",
         value: "Medium",
-        detail: "Confidence is improving, but deadline pressure makes last-minute execution more fragile.",
+        detail: "AI Prior confidence is improving, but deadline pressure makes last-minute execution more fragile.",
         tone: "caution" as const,
       },
       {
@@ -472,47 +586,123 @@ const chineseContent: typeof englishContent = {
     eyebrow: "持仓簿",
     title: "活跃市场仓位簿",
     description: "每一行都在回答一个操作问题：继续加仓、维持仓位，还是等待结算。",
-    headers: ["市场", "方向", "敞口", "平均赔率", "结算状态", "关闭时间"],
-    rows: [
-      {
-        market: "HTX Agent SDK Integration",
-        side: "YES",
-        exposure: "900",
-        avgOdds: "61%",
-        aiView: "偏正向",
-        settlement: "交易中",
-        close: "06h 18m",
-        tone: "accent" as const,
-      },
-      {
-        market: "zkPass Milestone Audit",
-        side: "NO",
-        exposure: "500",
-        avgOdds: "43%",
-        aiView: "进度风险",
-        settlement: "交易中",
-        close: "19h 05m",
-        tone: "caution" as const,
-      },
-      {
-        market: "VeilPay Wallet Growth Sprint",
-        side: "观察",
-        exposure: "0",
-        avgOdds: "74%",
-        aiView: "强 YES",
-        settlement: "即将结算",
-        close: "02h 43m",
-        tone: "positive" as const,
-      },
-    ],
+    headers: ["市场", "方向", "敞口", "群体赔率", "结算状态", "关闭时间"],
   },
+  demoMarkets: [
+    {
+      marketId: 0,
+      projectSlug: "agentpay",
+      title: "AgentPay 会在截止日前发出至少 10 个有效支付事件吗？",
+      status: "TRADING",
+      result: null,
+      trustBoundary: "P0 trusted oracle",
+      preferredSide: "YES",
+      exposure: "900",
+      close: "06h 18m",
+      tone: "accent" as const,
+      aiReport: {
+        aiPriorLabel: "AI Prior",
+        aiPriorProbability: 0.64,
+        confidence: "medium" as const,
+        bullish: ["近期提交和 demo 合约活动可见。"],
+        bearish: ["独立用户分布尚未验证。"],
+        riskFlags: ["possible wash activity"],
+      },
+      crowdOdds: {
+        yesProbabilityBps: 5800,
+        source: "Market.getYesOdds" as const,
+      },
+      verificationCriteria: {
+        type: "contract_event_count" as const,
+        target: 10,
+        dataSource: "AgentPay 支付合约日志",
+        formula: "若 resolution deadline 前匹配事件数 >= 10，则 PASS",
+      },
+      oracleReport: null,
+    },
+    {
+      marketId: 1,
+      projectSlug: "zkdocs",
+      title: "ZKDocs 会在截止日前合并至少 5 个合格 PR 吗？",
+      status: "SETTLED",
+      result: "YES",
+      trustBoundary: "P0 trusted oracle",
+      preferredSide: "YES",
+      exposure: "500",
+      close: "可领取",
+      tone: "positive" as const,
+      aiReport: {
+        aiPriorLabel: "AI Prior",
+        aiPriorProbability: 0.71,
+        confidence: "high" as const,
+        bullish: ["维护者活动稳定。", "多个贡献者保持活跃。"],
+        bearish: ["发布打包流程仍偏手动。"],
+        riskFlags: [],
+      },
+      crowdOdds: {
+        yesProbabilityBps: 6900,
+        source: "Market.getYesOdds" as const,
+      },
+      verificationCriteria: {
+        type: "github_merged_prs" as const,
+        target: 5,
+        dataSource: "GitHub merged pull requests",
+        formula: "若 resolution deadline 前 merged PR 数 >= 5，则 PASS",
+      },
+      oracleReport: {
+        passed: true,
+        settlementRationale: "Observed 7 merged pull requests for demo/zkdocs; target is 5. Result is PASS.",
+        observedMetrics: { mergedPrs: 7, target: 5 },
+        dataSourceStatus: { github: "available" },
+        limitations: ["P0 verifier counts merged PRs only; it does not judge PR quality or production deployment."],
+      },
+    },
+    {
+      marketId: 2,
+      projectSlug: "airdrop-ai",
+      title: "AirdropAI 会在截止日前发出至少 100 个有效使用事件吗？",
+      status: "SETTLED",
+      result: "NO",
+      trustBoundary: "P0 trusted oracle",
+      preferredSide: "NO",
+      exposure: "0",
+      close: "未通过",
+      tone: "caution" as const,
+      aiReport: {
+        aiPriorLabel: "AI Prior",
+        aiPriorProbability: 0.43,
+        confidence: "low" as const,
+        bullish: ["合约已部署。"],
+        bearish: ["GitHub 活动偏少。", "使用模式集中。"],
+        riskFlags: ["manual review required", "possible wash activity"],
+      },
+      crowdOdds: {
+        yesProbabilityBps: 7200,
+        source: "Market.getYesOdds" as const,
+      },
+      verificationCriteria: {
+        type: "contract_event_count" as const,
+        target: 100,
+        dataSource: "AirdropAI 使用合约日志",
+        formula: "若 resolution deadline 前匹配事件数 >= 100，则 PASS",
+      },
+      oracleReport: {
+        passed: false,
+        settlementRationale:
+          "Observed 18 matching contract events for 0x0000000000000000000000000000000000000000; target is 100. Result is FAIL.",
+        observedMetrics: { eventCount: 18, target: 100 },
+        dataSourceStatus: { chain: "available" },
+        limitations: ["P0 verifier counts matching logs only; it does not yet filter unique wallets or wash activity."],
+      },
+    },
+  ] satisfies DemoMarket[],
   agent: {
-    eyebrow: "Agent 解释",
+    eyebrow: "AI Prior 解释",
     recommendation: "最多只放行 350 SCOUT 到 YES",
-    confidence: "63%",
-    title: "为什么 agent 仍然要求人工审批",
+    confidence: "64%",
+    title: "为什么 AI Prior 仍然要求人工审批",
     summary:
-      "新的里程碑代码合并后，AI 判断变得更积极了，但信心还不足以支持“满仓盲批”。这个面板解释了为什么建议额度被限制。",
+      "新的里程碑代码合并后，AI Prior 变得更积极了，但信心还不足以支持“满仓盲批”。这个面板解释了为什么建议额度被限制。",
     factors: [
       {
         label: "里程碑代码已合并",
@@ -534,7 +724,7 @@ const chineseContent: typeof englishContent = {
     cautions: [
       "市场只剩 6 小时关闭，过期判断不应该被保留到最后一刻。",
       "项目方钱包仍被限制，但生态关联钱包还需要人工继续审查。",
-      "当前信心仍低于 70%，所以界面推荐限额下单而不是最大敞口。",
+      "当前 AI Prior confidence 仍低于 70%，所以界面推荐限额下单而不是最大敞口。",
     ],
     nextReview: "建议在下一个 release tag 出现后，或钱包增长显著变化时重新计算。",
   },
@@ -589,7 +779,7 @@ const chineseContent: typeof englishContent = {
   activity: {
     eyebrow: "最近活动",
     title: "操作与链上活动流",
-    description: "交易哈希、规则检查和 agent 刷新会汇总到同一条时间流里，让 demo 更像真实操作台。",
+    description: "交易哈希、规则检查和 AI Prior 刷新会汇总到同一条时间流里，让 demo 更像真实操作台。",
     items: [
       {
         time: "00:14",
@@ -600,9 +790,9 @@ const chineseContent: typeof englishContent = {
       },
       {
         time: "00:06",
-        title: "AI 重新计算 market_012 赔率",
+        title: "AI Prior 刷新 market_012",
         hash: "job_014",
-        note: "里程碑代码合并后，信心从 59% 提升至 63%。",
+        note: "里程碑代码合并后，AI Prior 从 59% 提升至 64%。",
         tone: "positive" as const,
       },
       {

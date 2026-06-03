@@ -12,7 +12,9 @@ Veil Scout turns project discovery into a credit-based judgment tournament.
 
 Scouts receive non-transferable seasonal credits and predict whether projects will hit clear, verifiable milestones.
 
-Correct scouts gain credits and leaderboard reputation. Wrong scouts lose influence.
+Human scouts can correct, confirm, or challenge the AI Prior with their own credit allocation.
+
+Correct scouts gain credits and on-chain leaderboard reputation. Wrong scouts lose influence.
 
 ## Slide 3: AI / Web3 Split
 
@@ -20,8 +22,8 @@ AI is the first analyst, not the judge.
 
 - AI produces an **AI Prior** report.
 - Scouts agree or disagree with credits.
-- Smart contracts lock credits, settle positions, and update leaderboard.
-- Track B oracle verifies data and calls settlement.
+- Smart contracts lock credits, settle positions, and update on-chain reputation.
+- Track B oracle verifies data and calls settlement with a visible P0 trusted-oracle boundary.
 
 ## Slide 4: Demo Flow
 
@@ -34,9 +36,8 @@ AI is the first analyst, not the judge.
 
 ## Slide 5: Roadmap And HTX Fit
 
-P0 proves the loop with trusted settlement.
+P0 proves the loop with trusted settlement and static report distribution.
 
 P1 decentralizes settlement with optimistic oracle/challenge period, publishes reports to IPFS/API, and connects reward pools to HTX DAO / ecosystem incentives.
 
-Veil Scout can become project discovery infrastructure for hackathons, grants, incubators, and launchpads.
-
+Veil Scout can become HTX DAO builder-discovery infrastructure for hackathons, grants, incubators, launchpads, and ecosystem due diligence.

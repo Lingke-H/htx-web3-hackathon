@@ -113,6 +113,14 @@ export function DemoPreview() {
           noExecution: "只追踪结算，不立即执行",
           activityFeed: "活动命令流",
           flowTitle: "评委演示路径",
+          aiPriorConfidence: "AI Prior 信心",
+          oracleReport: "Oracle Report",
+          verificationCriteria: "验证标准",
+          settlementRationale: "结算理由",
+          observedMetrics: "观测指标",
+          dataSourceStatus: "数据源状态",
+          limitations: "限制说明",
+          noOracleReport: "该市场仍在交易中，oracle report 会在 resolution deadline 后生成。",
         }
       : {
           discoveryConsole: "AI-assisted scout discovery console",
@@ -142,9 +150,21 @@ export function DemoPreview() {
           noExecution: "Track settlement without executing",
           activityFeed: "Activity command stream",
           flowTitle: "Judge demo path",
+          aiPriorConfidence: "AI Prior confidence",
+          oracleReport: "Oracle Report",
+          verificationCriteria: "Verification Criteria",
+          settlementRationale: "Settlement Rationale",
+          observedMetrics: "Observed Metrics",
+          dataSourceStatus: "Data Source Status",
+          limitations: "Limitations",
+          noOracleReport: "This market is still trading; the oracle report appears after the resolution deadline.",
         };
 
-  const confidenceValue = parsePercent(content.agent.confidence);
+  const primaryMarket = content.demoMarkets[0];
+  const settledMarket = content.demoMarkets.find((market) => market.oracleReport) ?? primaryMarket;
+  const primaryAiPrior = Math.round(primaryMarket.aiReport.aiPriorProbability * 100);
+  const primaryCrowdOdds = Math.round(primaryMarket.crowdOdds.yesProbabilityBps / 100);
+  const confidenceValue = primaryAiPrior;
   const approvalUtilization = 18;
   const orderAmount = Number.parseInt(orderSize, 10);
   const reviewWalletValue = reviewWallet ?? address ?? seededWallet;
@@ -154,13 +174,13 @@ export function DemoPreview() {
     { label: "T-18", ai: 56, crowd: 51 },
     { label: "T-12", ai: 59, crowd: 55 },
     { label: "T-06", ai: 61, crowd: 59 },
-    { label: "Now", ai: 63, crowd: 61 },
+    { label: "Now", ai: primaryAiPrior, crowd: primaryCrowdOdds },
   ];
-  const exposureSeries = [
-    { label: "YES", value: 900, tone: "accent" as const },
-    { label: "NO", value: 500, tone: "neutral" as const },
-    { label: locale === "zh" ? "观察" : "Watch", value: 0, tone: "caution" as const },
-  ];
+  const exposureSeries = content.demoMarkets.map((market) => ({
+    label: market.preferredSide,
+    value: Number.parseInt(market.exposure, 10) || 0,
+    tone: market.tone,
+  }));
   const metricTraces = [
     [46, 50, 56, 61, 66, 70],
     [20, 26, 31, 29, 34, 37],
@@ -181,24 +201,25 @@ export function DemoPreview() {
     locale === "zh"
       ? "规则集定义了 creator block、额度上限和 claim 流程。"
       : "The rule set defines creator blocking, approval caps, and the claim path.";
-  const orderError =
-    !orderSize
-      ? locale === "zh"
-        ? "请输入审批额度。"
-        : "Enter an approval amount."
-      : Number.isNaN(orderAmount)
-        ? locale === "zh"
-          ? "审批额度必须是数字。"
-          : "The approval amount must be numeric."
-        : orderAmount > 350
-          ? locale === "zh"
-            ? "当前工单不能超过 agent 建议的 350 SCOUT。"
-            : "This ticket cannot exceed the agent's 350 SCOUT recommendation."
-          : orderAmount < 25
-            ? locale === "zh"
-              ? "额度太小，不足以触发有效的演示动作。"
-              : "The amount is too small to show a meaningful demo action."
-            : undefined;
+  const orderError = (() => {
+    if (!orderSize) {
+      return locale === "zh" ? "请输入审批额度。" : "Enter an approval amount.";
+    }
+    if (Number.isNaN(orderAmount)) {
+      return locale === "zh" ? "审批额度必须是数字。" : "The approval amount must be numeric.";
+    }
+    if (orderAmount > 350) {
+      return locale === "zh"
+        ? "当前工单不能超过 AI Prior 建议的 350 SCOUT。"
+        : "This ticket cannot exceed the AI Prior's 350 SCOUT recommendation.";
+    }
+    if (orderAmount < 25) {
+      return locale === "zh"
+        ? "额度太小，不足以触发有效的演示动作。"
+        : "The amount is too small to show a meaningful demo action.";
+    }
+    return undefined;
+  })();
   const walletError =
     !reviewWalletValue
       ? locale === "zh"
@@ -238,19 +259,31 @@ export function DemoPreview() {
         };
 
   const heroSignals = [
-    { label: copy.aiPrior, detail: content.agent.confidence, tone: "accent" as const },
-    { label: copy.crowdOdds, detail: `${convictionSeries.at(-1)?.crowd ?? 0}%`, tone: "positive" as const },
-    { label: copy.oracleSettlement, detail: content.risk.items[3].value, tone: "neutral" as const },
+    { label: copy.aiPrior, detail: `${primaryAiPrior}%`, tone: "accent" as const },
+    { label: copy.crowdOdds, detail: `${primaryCrowdOdds}%`, tone: "positive" as const },
+    { label: copy.oracleSettlement, detail: primaryMarket.trustBoundary, tone: "neutral" as const },
     { label: copy.nonTransferableCredits, detail: content.wallet.demoCredits, tone: "positive" as const },
     { label: copy.manualLane, detail: approvalLane.label, tone: approvalLane.tone },
   ];
 
-  const constellationItems = content.position.rows.map((row) => ({
-    label: row.market,
-    sublabel: row.side,
-    tone: row.tone,
-    value: `${row.avgOdds} / ${row.close}`,
+  const marketRows = content.demoMarkets.map((market) => ({
+    market: market.title,
+    side: market.result ?? market.preferredSide,
+    exposure: market.exposure,
+    crowdOdds: `${Math.round(market.crowdOdds.yesProbabilityBps / 100)}%`,
+    aiView: `${market.aiReport.aiPriorLabel} ${Math.round(market.aiReport.aiPriorProbability * 100)}%`,
+    settlement: market.status === "SETTLED" ? `SETTLED ${market.result}` : market.status,
+    close: market.close,
+    tone: market.tone,
   }));
+
+  const constellationItems = content.demoMarkets.map((market) => ({
+    label: market.title,
+    sublabel: market.result ?? market.preferredSide,
+    tone: market.tone,
+    value: `${Math.round(market.crowdOdds.yesProbabilityBps / 100)}% / ${market.status}`,
+  }));
+  const oracleReport = settledMarket.oracleReport;
 
   const transactionLog = content.transaction.processes.map((process) => ({
     id: process.hash,
@@ -382,7 +415,7 @@ export function DemoPreview() {
                                   <div className="flex items-center justify-between gap-3">
                                     <p className="terminal-label">{copy.aiPrior}</p>
                                     <Badge className="border-cyan-300/30 bg-cyan-400/12 text-cyan-50" variant="outline">
-                                      {content.agent.confidence}
+                                      {primaryAiPrior}%
                                     </Badge>
                                   </div>
                                   <p className="mt-4 text-lg font-semibold text-white">{content.agent.recommendation}</p>
@@ -483,7 +516,7 @@ export function DemoPreview() {
                     <div className="flex items-center justify-between gap-3">
                       <p className="terminal-label">{copy.convictionDelta}</p>
                       <Badge className="border-cyan-300/30 bg-cyan-400/12 text-cyan-50" variant="outline">
-                        {content.agent.confidence}
+                        {primaryAiPrior}%
                       </Badge>
                     </div>
 
@@ -661,7 +694,7 @@ export function DemoPreview() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {content.position.rows.map((row) => (
+                        {marketRows.map((row) => (
                           <TableRow
                             key={row.market}
                             className="border-white/6 transition-colors hover:bg-cyan-400/[0.06]"
@@ -672,7 +705,7 @@ export function DemoPreview() {
                             </TableCell>
                             <TableCell className="px-4 py-4 font-mono text-slate-100">{row.side}</TableCell>
                             <TableCell className="px-4 py-4 font-mono text-cyan-100">{row.exposure}</TableCell>
-                            <TableCell className="px-4 py-4 font-mono text-slate-100">{row.avgOdds}</TableCell>
+                            <TableCell className="px-4 py-4 font-mono text-slate-100">{row.crowdOdds}</TableCell>
                             <TableCell className="px-4 py-4">
                               <Badge className={cn("px-2 py-0.5", toneClass(row.tone))} variant="outline">
                                 {row.settlement}
@@ -915,9 +948,9 @@ export function DemoPreview() {
               <div className="mt-4 space-y-4">
                 <div className="terminal-console rounded-[20px] p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="terminal-label">{locale === "zh" ? "Agent 信心" : "Agent confidence"}</span>
+                    <span className="terminal-label">{copy.aiPriorConfidence}</span>
                     <Badge className="border-cyan-300/30 bg-cyan-400/12 text-cyan-50" variant="outline">
-                      {content.agent.confidence}
+                      {primaryAiPrior}%
                     </Badge>
                   </div>
                   <Progress
@@ -949,6 +982,72 @@ export function DemoPreview() {
                         <ChevronRight className="mt-1 h-4 w-4 shrink-0" />
                         <span>{item}</span>
                       </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </HologramCard>
+
+            <HologramCard className="rounded-[32px] p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="terminal-label">{copy.oracleReport}</p>
+                  <h3 className="mt-3 text-[1.08rem] font-semibold text-white">{settledMarket.title}</h3>
+                </div>
+                <Badge className="border-cyan-300/30 bg-cyan-400/12 text-cyan-50" variant="outline">
+                  {settledMarket.trustBoundary}
+                </Badge>
+              </div>
+
+              <div className="mt-4 rounded-[18px] border border-white/8 bg-white/[0.025] p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className={cn("px-2 py-0.5", toneClass(settledMarket.tone))} variant="outline">
+                    {oracleReport ? (oracleReport.passed ? "PASS" : "FAIL") : "PENDING"}
+                  </Badge>
+                  <Badge className="border-slate-300/18 bg-slate-400/12 text-slate-100" variant="outline">
+                    {settledMarket.verificationCriteria.type}
+                  </Badge>
+                  <Badge className="border-emerald-300/30 bg-emerald-400/12 text-emerald-50" variant="outline">
+                    {settledMarket.verificationCriteria.dataSource}
+                  </Badge>
+                </div>
+                <p className="mt-4 text-sm leading-7 text-slate-300">
+                  {oracleReport?.settlementRationale ?? copy.noOracleReport}
+                </p>
+              </div>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <div className="data-row rounded-[18px] px-4 py-3">
+                  <p className="terminal-label">{copy.verificationCriteria}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">{settledMarket.verificationCriteria.formula}</p>
+                </div>
+                <div className="data-row rounded-[18px] px-4 py-3">
+                  <p className="terminal-label">{copy.observedMetrics}</p>
+                  <div className="mt-2 space-y-1">
+                    {Object.entries(oracleReport?.observedMetrics ?? { status: "pending" }).map(([key, value]) => (
+                      <div key={key} className="flex items-center justify-between gap-3 font-mono text-xs text-slate-300">
+                        <span>{key}</span>
+                        <span className="text-cyan-100">{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="data-row rounded-[18px] px-4 py-3">
+                  <p className="terminal-label">{copy.dataSourceStatus}</p>
+                  <div className="mt-2 space-y-1">
+                    {Object.entries(oracleReport?.dataSourceStatus ?? { oracle: "pending" }).map(([key, value]) => (
+                      <div key={key} className="flex items-center justify-between gap-3 font-mono text-xs text-slate-300">
+                        <span>{key}</span>
+                        <span className="text-cyan-100">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="data-row rounded-[18px] px-4 py-3">
+                  <p className="terminal-label">{copy.limitations}</p>
+                  <div className="mt-2 space-y-2">
+                    {(oracleReport?.limitations ?? [copy.noOracleReport]).map((item) => (
+                      <p key={item} className="text-sm leading-6 text-slate-300">{item}</p>
                     ))}
                   </div>
                 </div>

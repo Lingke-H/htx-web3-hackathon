@@ -7,7 +7,7 @@ Judge-ready frontend preview for the `htx-web3-hackathon` repository.
 - A standalone `Next.js` demo UI under `veil-scout/frontend`
 - A dark Web3 / FinTech dashboard for hackathon presentation
 - Mock wallet state, market cards, AI analysis, activity feed, risk rails, and demo flow
-- A structure that can later be wired to `veil-scout/contracts/abi`
+- A structure that can later be wired to `veil-scout/track-a-contracts/abi`
 
 ## Run Locally
 
@@ -29,4 +29,4 @@ Then open [http://localhost:3000](http://localhost:3000).
 ## Notes
 
 - This UI is intentionally mock-data driven for fast hackathon demos.
-- The next integration step is swapping `lib/demo-data.ts` for reads backed by `contracts/abi` and deployment addresses.
+- The next integration step is swapping `lib/demo-data.ts` for reads backed by `track-a-contracts/abi` and deployment addresses.

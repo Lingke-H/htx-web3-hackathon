@@ -1,7 +1,18 @@
-import type { DemoContent } from "@/lib/demo-data";
+import type { DemoContent, DemoMarket } from "@/lib/demo-data";
 import { RiskBadge } from "@/components/risk-badge";
 
-export function PositionBook({ section }: { section: DemoContent["position"] }) {
+export function PositionBook({ section, markets }: { section: DemoContent["position"]; markets: DemoMarket[] }) {
+  const rows = markets.map((market) => ({
+    market: market.title,
+    side: market.result ?? market.preferredSide,
+    exposure: market.exposure,
+    crowdOdds: `${Math.round(market.crowdOdds.yesProbabilityBps / 100)}%`,
+    aiView: `${market.aiReport.aiPriorLabel} ${Math.round(market.aiReport.aiPriorProbability * 100)}%`,
+    settlement: market.status === "SETTLED" ? `SETTLED ${market.result}` : market.status,
+    close: market.close,
+    tone: market.tone,
+  }));
+
   return (
     <section className="panel relative rounded-[28px] p-5 sm:p-6" id="markets">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -21,7 +32,7 @@ export function PositionBook({ section }: { section: DemoContent["position"] }) 
           ))}
         </div>
 
-        {section.rows.map((row) => (
+        {rows.map((row) => (
           <div
             key={row.market}
             className="grid grid-cols-[1.5fr_repeat(5,minmax(0,0.7fr))] gap-3 border-b border-white/6 px-4 py-4 text-sm text-slate-200 last:border-b-0"
@@ -32,7 +43,7 @@ export function PositionBook({ section }: { section: DemoContent["position"] }) 
             </div>
             <span>{row.side}</span>
             <span className="font-mono">{row.exposure}</span>
-            <span>{row.avgOdds}</span>
+            <span>{row.crowdOdds}</span>
             <div>
               <RiskBadge tone={row.tone}>{row.settlement}</RiskBadge>
             </div>
