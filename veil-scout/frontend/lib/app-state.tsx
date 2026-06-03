@@ -27,14 +27,14 @@ type AppStateValue = {
 const AppStateContext = createContext<AppStateValue | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved === "en" || saved === "zh") {
-      setLocaleState(saved);
+  const [locale, setLocaleState] = useState<Locale>(() => {
+    if (typeof window === "undefined") {
+      return "en";
     }
-  }, []);
+
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    return saved === "en" || saved === "zh" ? saved : "en";
+  });
 
   useEffect(() => {
     document.documentElement.lang = locale;

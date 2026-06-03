@@ -4,9 +4,9 @@ import Providers from "@/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Veil Scout Demo | HTX Web3 Hackathon",
+  title: "Veil Scout Mission Control | HTX Web3 Hackathon",
   description:
-    "Judge-ready demo UI for Veil Scout: wallet state, AI conviction, milestone markets, and risk controls in one screen.",
+    "Judge-ready mission control UI for Veil Scout: AI-assisted scout discovery, credit markets, oracle settlement, and manual risk rails in one screen.",
 };
 
 export default function RootLayout({

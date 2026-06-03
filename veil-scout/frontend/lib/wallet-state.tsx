@@ -99,7 +99,7 @@ async function readWalletSnapshot(provider: EthereumProvider) {
 }
 
 export function WalletStateProvider({ children }: { children: ReactNode }) {
-  const [hasProvider, setHasProvider] = useState(false);
+  const [hasProvider] = useState(() => Boolean(getProvider()));
   const [isConnecting, setIsConnecting] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
@@ -109,8 +109,6 @@ export function WalletStateProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const provider = getProvider();
-
-    setHasProvider(Boolean(provider));
 
     if (!provider) {
       return;

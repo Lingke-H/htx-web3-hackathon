@@ -12,7 +12,7 @@ const englishContent = {
   shell: {
     brandLabel: "HTX Web3 Hackathon",
     brandName: "VEIL SCOUT",
-    brandDescription: "Milestone market desk for wallet review, approvals, and settlement.",
+    brandDescription: "AI-assisted scout discovery console for credit markets, oracle review, and manual release.",
     navigation: [
       { label: "Overview", value: "overview", active: true },
       { label: "Markets", value: "markets", active: false },
@@ -22,8 +22,8 @@ const englishContent = {
     scopeLabel: "Demo scope",
     scopeDescription:
       "Live wallet state is real. Market cards below remain labeled as seeded demo data from the local contract flow.",
-    overviewLabel: "Control room",
-    overviewTitle: "Operator console for wallet-backed market approvals",
+    overviewLabel: "Mission control",
+    overviewTitle: "Mission control for AI prior, crowd odds, and wallet-backed approvals",
     updatedAt: "Updated 00:14 UTC",
     badges: [
       { label: "Seeded demo data", tone: "neutral" as const },
@@ -32,10 +32,10 @@ const englishContent = {
     ],
   },
   hero: {
-    eyebrow: "Milestone market desk",
-    title: "Approve market actions only after wallet state, chain lane, and risk controls all line up.",
+    eyebrow: "AI oracle mission desk",
+    title: "Pilot AI prior, crowd odds, and oracle-settled scout markets from one mission control deck.",
     description:
-      "This screen is built like an approval desk, not a landing page: connect a wallet, inspect agent conviction, check permission rails, and manually release only the actions that should execute onchain.",
+      "Veil Scout turns scout discovery into a credit-based prediction loop: connect a wallet, inspect the AI prior, compare crowd odds, and manually release only the market actions that deserve execution.",
     primaryCta: "Open approval review",
     connectCta: "Connect wallet",
     secondaryCta: "View settlement path",
@@ -355,7 +355,7 @@ const chineseContent: typeof englishContent = {
   shell: {
     brandLabel: "HTX Web3 Hackathon",
     brandName: "VEIL SCOUT",
-    brandDescription: "一个用于里程碑预测市场、钱包审批和结算追踪的控制台。",
+    brandDescription: "一个用于 AI 辅助 Scout 发现、信用市场复核和人工放行的主控台。",
     navigation: [
       { label: "总览", value: "overview", active: true },
       { label: "市场", value: "markets", active: false },
@@ -365,8 +365,8 @@ const chineseContent: typeof englishContent = {
     scopeLabel: "演示范围",
     scopeDescription:
       "钱包地址、网络和原生余额是真实读取的；下方市场数据仍明确标注为基于本地合约流程的 demo 数据。",
-    overviewLabel: "控制台",
-    overviewTitle: "面向钱包审批的市场操作控制台",
+    overviewLabel: "主控舱",
+    overviewTitle: "汇总 AI 先验、群体赔率与钱包审批的 Mission Control",
     updatedAt: "更新时间 00:14 UTC",
     badges: [
       { label: "种子 demo 数据", tone: "neutral" as const },
@@ -375,10 +375,10 @@ const chineseContent: typeof englishContent = {
     ],
   },
   hero: {
-    eyebrow: "里程碑市场工作台",
-    title: "只有当钱包状态、链路和风控条件都对齐时，才放行市场动作。",
+    eyebrow: "AI 预言机任务台",
+    title: "把 AI 先验、群体赔率和预言机结算过的 Scout 市场收进同一个主控舱。",
     description:
-      "这个界面按审批工作台来设计，而不是宣传页：先连接钱包，再核对 agent 判断、权限护栏和结算路径，最后只手动放行那些应该上链的动作。",
+      "Veil Scout 把 Scout 发现做成一个基于积分的预测闭环：先连接钱包，再查看 AI 先验、对比群体赔率，最后只手动放行那些真正值得执行的市场动作。",
     primaryCta: "进入审批复核",
     connectCta: "连接钱包",
     secondaryCta: "查看结算路径",
