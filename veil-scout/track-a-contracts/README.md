@@ -47,7 +47,13 @@ seasonProtocolReserve[season]
 
 ## Build & Test
 
-Requirements: [Foundry](https://book.getfoundry.sh/)
+Requirements: [Foundry](https://book.getfoundry.sh/). Recommended install path:
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+export PATH="$HOME/.foundry/bin:$PATH"
+foundryup
+```
 
 ```bash
 forge build
@@ -81,6 +87,8 @@ forge script script/DeployP0.s.sol:DeployP0 \
 ```
 
 ### Testnet
+
+This repository's release baseline is the local Anvil demo. Testnet commands remain optional reference material and are not part of the required submission flow.
 
 Set environment variables and run:
 

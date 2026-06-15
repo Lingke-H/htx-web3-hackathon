@@ -12,8 +12,9 @@ Judge-ready frontend preview for the `htx-web3-hackathon` repository.
 ## Run Locally
 
 ```bash
+nvm use 24.16.0
 cd veil-scout/frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -42,5 +43,6 @@ Without a configured vault, with a chain mismatch, or when the live read path fa
 
 ## Notes
 
+- Release baseline is Node `24.16.0`.
 - This UI is still demo-first and keeps the scout market flow intact.
 - The incubation panel now supports a narrow live-read path with a deliberate mock fallback.

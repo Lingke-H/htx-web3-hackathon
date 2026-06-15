@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$ROOT_DIR/.." && pwd)"
 TRACK_A_DIR="$ROOT_DIR/track-a-contracts"
 FRONTEND_DIR="$ROOT_DIR/frontend"
 
@@ -9,7 +10,7 @@ RPC_URL="${RPC_URL:-http://127.0.0.1:8545}"
 ANVIL_HOST="${ANVIL_HOST:-127.0.0.1}"
 ANVIL_PORT="${ANVIL_PORT:-8545}"
 CHAIN_ID="${CHAIN_ID:-31337}"
-PRIVATE_KEY="${PRIVATE_KEY:-0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80}"
+DEPLOYER_ADDRESS="${DEPLOYER_ADDRESS:-0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266}"
 LOOPBACK_NO_PROXY="${LOOPBACK_NO_PROXY:-127.0.0.1,localhost}"
 
 FRONTEND_HOST="${FRONTEND_HOST:-127.0.0.1}"
@@ -49,12 +50,34 @@ require_command() {
   fi
 }
 
+maybe_use_repo_node() {
+  local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
+  local nvmrc_path="$REPO_ROOT/.nvmrc"
+
+  if [[ -f "$nvmrc_path" && -s "$nvm_dir/nvm.sh" ]]; then
+    # shellcheck disable=SC1090
+    . "$nvm_dir/nvm.sh"
+    nvm use >/dev/null
+  fi
+
+  require_command node "node is required to start the live judge demo frontend."
+  require_command npm "npm is required to start the live judge demo frontend."
+
+  local node_major
+  node_major="$(node -p "process.versions.node.split('.')[0]")"
+  if [[ "$node_major" != "24" ]]; then
+    echo "Node 24 is required for the live judge demo. Current node: $(node -v)" >&2
+    echo "Install or activate the repo baseline with: nvm install && nvm use" >&2
+    exit 1
+  fi
+}
+
 wait_for_http() {
   local url="$1"
   local label="$2"
 
   for _ in $(seq 1 "$FRONTEND_READY_ATTEMPTS"); do
-    if curl -sSf "$url" >/dev/null 2>&1; then
+    if curl --max-time 2 -sSf "$url" >/dev/null 2>&1; then
       return 0
     fi
     if [[ -n "${FRONTEND_PID:-}" ]] && ! kill -0 "$FRONTEND_PID" 2>/dev/null; then
@@ -74,7 +97,7 @@ require_command forge "forge is required to run the live judge demo."
 require_command anvil "anvil is required to run the live judge demo."
 require_command python3 "python3 is required to configure the live judge demo."
 require_command curl "curl is required to probe the local demo services."
-require_command npm "npm is required to start the live judge demo frontend."
+maybe_use_repo_node
 
 if lsof -iTCP:"$FRONTEND_PORT" -sTCP:LISTEN -n -P >/dev/null 2>&1; then
   echo "Port $FRONTEND_PORT is already in use. Set FRONTEND_PORT to a free port and rerun the live judge demo." >&2
@@ -112,8 +135,8 @@ fi
 
 (
   cd "$TRACK_A_DIR"
-  forge script script/DeployP0.s.sol:DeployP0 --rpc-url "$RPC_URL" --broadcast --slow
-  forge script script/SeedIncubationDemo.s.sol:SeedIncubationDemo --rpc-url "$RPC_URL" --broadcast --slow
+  forge script script/DeployP0.s.sol:DeployP0 --rpc-url "$RPC_URL" --broadcast --slow --unlocked --sender "$DEPLOYER_ADDRESS"
+  forge script script/SeedIncubationDemo.s.sol:SeedIncubationDemo --rpc-url "$RPC_URL" --broadcast --slow --unlocked --sender "$DEPLOYER_ADDRESS"
 )
 
 python3 - "$TRACK_A_DIR/deployment.json" "$TRACK_A_DIR/incubation-demo.json" "$FRONTEND_ENV_FILE" "$FRONTEND_RPC_URL" "$FRONTEND_INCUBATION_CHAIN_ID" "$FRONTEND_SELECTED_PROJECT" <<'PY'

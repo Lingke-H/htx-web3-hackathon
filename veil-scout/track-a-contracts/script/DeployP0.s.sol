@@ -14,9 +14,8 @@ import { ILeaderboard } from "../src/interfaces/ILeaderboard.sol";
 import { ISeason } from "../src/interfaces/ISeason.sol";
 
 contract DeployP0 is Script {
-    uint256 private constant DEFAULT_ANVIL_PRIVATE_KEY =
-        0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
-    uint256 private constant DEFAULT_CLAIM_SIGNER_PRIVATE_KEY = 0xA11CE;
+    address private constant DEFAULT_ANVIL_DEPLOYER = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+    address private constant DEFAULT_CLAIM_SIGNER = address(0xA11CE);
 
     struct DeploymentOutput {
         address deployer;
@@ -32,16 +31,21 @@ contract DeployP0 is Script {
     }
 
     function run() external {
-        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", DEFAULT_ANVIL_PRIVATE_KEY);
-        uint256 claimSignerPrivateKey =
-            vm.envOr("CLAIM_SIGNER_PRIVATE_KEY", DEFAULT_CLAIM_SIGNER_PRIVATE_KEY);
+        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0));
         DeploymentOutput memory output;
-        output.claimSigner = vm.addr(claimSignerPrivateKey);
-        output.deployer = vm.addr(deployerPrivateKey);
+        output.deployer = vm.envOr("DEPLOYER_ADDRESS", DEFAULT_ANVIL_DEPLOYER);
+        if (deployerPrivateKey != 0) {
+            output.deployer = vm.addr(deployerPrivateKey);
+        }
+        output.claimSigner = vm.envOr("CLAIM_SIGNER_ADDRESS", DEFAULT_CLAIM_SIGNER);
         output.seasonStart = vm.envOr("SEASON_START", block.timestamp);
         output.seasonEnd = vm.envOr("SEASON_END", output.seasonStart + 60 days);
 
-        vm.startBroadcast(deployerPrivateKey);
+        if (deployerPrivateKey != 0) {
+            vm.startBroadcast(deployerPrivateKey);
+        } else {
+            vm.startBroadcast(output.deployer);
+        }
 
         Season season = new Season();
         CreditLedger creditLedger = new CreditLedger(ISeason(address(season)), output.claimSigner);
