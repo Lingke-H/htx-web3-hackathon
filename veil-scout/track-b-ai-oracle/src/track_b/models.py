@@ -118,7 +118,8 @@ class AIReport(BaseModel):
 class VerificationReport(BaseModel):
     projectSlug: str
     marketId: int
-    milestoneId: str | None = None
+    vaultId: int | None = Field(default=None, ge=0)
+    milestoneId: int | str | None = None
     passed: bool
     recommendedReleaseAmount: int | None = Field(default=None, ge=0)
     pauseRecommendation: bool = False
@@ -131,7 +132,21 @@ class VerificationReport(BaseModel):
     dataSourceStatus: dict[str, str] = Field(default_factory=dict)
     settlementRationale: str
     limitations: list[str] = Field(default_factory=list)
+    trustBoundary: str | None = None
+    reviewerAction: dict[str, Any] | None = None
+    releaseCommandPreview: str | None = None
     error: str | None = None
+
+    @model_validator(mode="after")
+    def validate_release_guidance(self) -> "VerificationReport":
+        release_amount = self.recommendedReleaseAmount or 0
+        if not self.passed and release_amount != 0:
+            raise ValueError("failed verification cannot recommend a positive release amount")
+        if self.vaultId is not None and self.milestoneId is None:
+            raise ValueError("vault-linked release reports require milestoneId")
+        if self.releaseCommandPreview and self.vaultId is None:
+            raise ValueError("release command preview requires vaultId")
+        return self
 
 
 class TxReceiptSummary(BaseModel):
@@ -155,3 +170,13 @@ def report_path(data_dir: Path, project_slug: str) -> Path:
 
 def verification_path(data_dir: Path, project_slug: str, market_id: int) -> Path:
     return data_dir / "settlements" / f"{project_slug}-verification-market-{market_id}.json"
+
+
+def release_assessment_path(
+    data_dir: Path, project_slug: str, market_id: int, vault_id: int, milestone_id: int
+) -> Path:
+    return (
+        data_dir
+        / "releases"
+        / f"{project_slug}-market-{market_id}-vault-{vault_id}-milestone-{milestone_id}.json"
+    )

@@ -9,9 +9,9 @@ from .analyst import analyze_project
 from .chain_client import ChainClient
 from .config import load_settings
 from .github_client import GitHubClient
-from .models import CreatedMarket, report_path, verification_path
+from .models import CreatedMarket, release_assessment_path, report_path, verification_path
 from .storage import load_project, load_report, load_verification, write_json
-from .verifier import verify_project
+from .verifier import assess_milestone_release, verify_project
 
 app = typer.Typer(help="Veil Scout Track B AI analyst and settlement oracle CLI.")
 console = Console()
@@ -75,6 +75,43 @@ def verify(
         f"{report.passed} observed={report.observedMetrics} milestoneId={report.milestoneId} "
         f"release={report.recommendedReleaseAmount} pause={report.pauseRecommendation}"
     )
+    return output
+
+
+@app.command("assess-release")
+def assess_release(
+    project: Path = typer.Option(..., exists=True, readable=True),
+    market_id: int = typer.Option(..., min=0),
+    vault_id: int = typer.Option(..., min=0),
+    milestone_id: int = typer.Option(..., min=0),
+    recommended_release_amount: int | None = typer.Option(None, min=0),
+) -> Path:
+    settings = load_settings()
+    config = load_project(project)
+    chain = _chain(settings, require_private_key=False)
+    try:
+        report = assess_milestone_release(
+            config,
+            market_id,
+            vault_id,
+            milestone_id,
+            chain_client=chain,
+            github_client=GitHubClient(settings.github_token),
+            recommended_release_amount=recommended_release_amount,
+        )
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+
+    output = release_assessment_path(settings.data_dir, config.slug, market_id, vault_id, milestone_id)
+    write_json(output, report)
+    console.print(f"[green]Release assessment written:[/green] {output}")
+    console.print(
+        "passed="
+        f"{report.passed} vaultId={report.vaultId} milestoneId={report.milestoneId} "
+        f"release={report.recommendedReleaseAmount} pause={report.pauseRecommendation}"
+    )
+    console.print(report.trustBoundary)
+    console.print(report.releaseCommandPreview)
     return output
 
 

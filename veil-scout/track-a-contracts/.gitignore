@@ -4,6 +4,7 @@ broadcast/
 .env
 .env.*
 deployment.json
+incubation-demo.json
 mock-data.json
 .venv/
 slither-report.txt

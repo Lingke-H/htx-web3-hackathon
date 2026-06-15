@@ -92,3 +92,93 @@ def verify_project(
         limitations=limitations,
         error=error,
     )
+
+
+def assess_milestone_release(
+    project: ProjectConfig,
+    market_id: int,
+    vault_id: int,
+    milestone_id: int,
+    chain_client: ChainClient,
+    github_client: GitHubClient | None = None,
+    recommended_release_amount: int | None = None,
+) -> VerificationReport:
+    verification_chain = chain_client if project.verification_rule.type == "contract_event_count" else None
+    report = verify_project(
+        project,
+        market_id,
+        github_client=github_client,
+        chain_client=verification_chain,
+        milestone_id=milestone_id,
+    )
+
+    vault = chain_client.get_incubation_vault(vault_id)
+    if vault["status"] != "ACTIVE":
+        raise ValueError(f"vault {vault_id} is not ACTIVE")
+
+    milestone = chain_client.get_incubation_milestone(vault_id, milestone_id)
+    if milestone["released"]:
+        raise ValueError(f"milestone {milestone_id} in vault {vault_id} is already released")
+
+    fixed_release_amount = int(milestone["releaseAmount"])
+    if report.passed:
+        release_amount = (
+            fixed_release_amount
+            if recommended_release_amount is None
+            else recommended_release_amount
+        )
+        if release_amount != fixed_release_amount:
+            raise ValueError(
+                "recommended release amount must match the fixed on-chain milestone amount"
+            )
+    else:
+        release_amount = 0 if recommended_release_amount is None else recommended_release_amount
+        if release_amount != 0:
+            raise ValueError("failed verification cannot recommend a milestone release amount")
+
+    reviewed_budget = chain_client.remaining_incubation_budget(vault_id)
+    observed_metrics = dict(report.observedMetrics)
+    observed_metrics.update(
+        {
+            "vaultStatus": vault["status"],
+            "milestoneReleaseAmount": fixed_release_amount,
+            "milestoneReleased": milestone["released"],
+            "vaultRemainingBudget": reviewed_budget,
+        }
+    )
+    execution_summary = (
+        f"{report.executionSummary} "
+        f"Milestone {milestone_id} is configured for a fixed release of {fixed_release_amount} sponsor units; "
+        f"{'authorized reviewer may submit the release' if report.passed else 'authorized reviewer should hold or pause the release'}."
+    )
+    limitations = list(report.limitations)
+    limitations.append(
+        "Advisory only: an authorized ORACLE_ROLE reviewer must still decide whether to submit releaseMilestone."
+    )
+    trust_boundary = (
+        "Advisory only. The oracle report does not move sponsor units automatically; "
+        "an authorized ORACLE_ROLE reviewer must approve and submit releaseMilestone."
+    )
+    reviewer_action = {
+        "contractAddress": chain_client.deployment["incubationVault"],
+        "function": "releaseMilestone(uint256,uint256,string)",
+        "args": [vault_id, milestone_id, execution_summary],
+        "requiredRole": "ORACLE_ROLE",
+    }
+
+    return report.model_copy(
+        update={
+            "vaultId": vault_id,
+            "milestoneId": milestone_id,
+            "recommendedReleaseAmount": release_amount,
+            "pauseRecommendation": not report.passed,
+            "executionSummary": execution_summary,
+            "observedMetrics": observed_metrics,
+            "limitations": limitations,
+            "trustBoundary": trust_boundary,
+            "reviewerAction": reviewer_action,
+            "releaseCommandPreview": chain_client.release_milestone_command_preview(
+                vault_id, milestone_id, execution_summary
+            ),
+        }
+    )

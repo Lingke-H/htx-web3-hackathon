@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
-type EthereumProvider = {
+export type EthereumProvider = {
   on?: (event: string, handler: (...args: unknown[]) => void) => void;
   removeListener?: (event: string, handler: (...args: unknown[]) => void) => void;
   request: (args: { method: string; params?: unknown[] | object }) => Promise<unknown>;
@@ -41,7 +41,7 @@ const baseSepoliaParams = {
   blockExplorerUrls: ["https://sepolia.basescan.org"],
 } as const;
 
-function getProvider() {
+export function getInjectedProvider() {
   if (typeof window === "undefined") {
     return null;
   }
@@ -99,7 +99,7 @@ async function readWalletSnapshot(provider: EthereumProvider) {
 }
 
 export function WalletStateProvider({ children }: { children: ReactNode }) {
-  const [hasProvider] = useState(() => Boolean(getProvider()));
+  const [hasProvider] = useState(() => Boolean(getInjectedProvider()));
   const [isConnecting, setIsConnecting] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
@@ -108,7 +108,7 @@ export function WalletStateProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const provider = getProvider();
+    const provider = getInjectedProvider();
 
     if (!provider) {
       return;
@@ -147,7 +147,7 @@ export function WalletStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const connect = async () => {
-    const provider = getProvider();
+    const provider = getInjectedProvider();
 
     if (!provider) {
       setError("No injected wallet detected in this browser.");
@@ -172,7 +172,7 @@ export function WalletStateProvider({ children }: { children: ReactNode }) {
   };
 
   const switchToDemoChain = async () => {
-    const provider = getProvider();
+    const provider = getInjectedProvider();
 
     if (!provider) {
       setError("No injected wallet detected in this browser.");

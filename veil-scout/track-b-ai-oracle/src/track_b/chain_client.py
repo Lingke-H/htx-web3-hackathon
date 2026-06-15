@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shlex
 from pathlib import Path
 from typing import Any
 
@@ -100,6 +101,45 @@ class ChainClient:
     def market(self):
         return self._contract("Market", self.deployment["market"])
 
+    def incubation_vault(self):
+        return self._contract("IncubationVault", self.deployment["incubationVault"])
+
+    def get_incubation_vault(self, vault_id: int) -> dict[str, Any]:
+        data = self.incubation_vault().functions.getVault(vault_id).call()
+        return {
+            "projectOwner": data[0],
+            "sponsor": data[1],
+            "totalBudget": int(data[2]),
+            "allocatedBudget": int(data[3]),
+            "releasedBudget": int(data[4]),
+            "refundedBudget": int(data[5]),
+            "milestoneCount": int(data[6]),
+            "status": self._vault_status_name(int(data[7])),
+            "metadataURI": data[8],
+        }
+
+    def get_incubation_milestone(self, vault_id: int, milestone_id: int) -> dict[str, Any]:
+        data = self.incubation_vault().functions.getMilestone(vault_id, milestone_id).call()
+        return {
+            "label": data[0],
+            "releaseAmount": int(data[1]),
+            "metadataURI": data[2],
+            "released": bool(data[3]),
+        }
+
+    def remaining_incubation_budget(self, vault_id: int) -> int:
+        return int(self.incubation_vault().functions.remainingBudget(vault_id).call())
+
+    def release_milestone_command_preview(
+        self, vault_id: int, milestone_id: int, execution_summary: str
+    ) -> str:
+        quoted_summary = shlex.quote(execution_summary)
+        return (
+            f'cast send {self.deployment["incubationVault"]} '
+            f'"releaseMilestone(uint256,uint256,string)" {vault_id} {milestone_id} '
+            f"{quoted_summary} --rpc-url $RPC_URL --private-key $ORACLE_PRIVATE_KEY"
+        )
+
     def _contract(self, name: str, address: str):
         abi_path = self.contracts_dir / "abi" / f"{name}.json"
         with abi_path.open("r", encoding="utf-8") as handle:
@@ -149,3 +189,11 @@ class ChainClient:
             if len(topics) >= 2:
                 return int(topics[1].hex(), 16)
         raise RuntimeError("could not infer marketId from transaction receipt")
+
+    @staticmethod
+    def _vault_status_name(status: int) -> str:
+        return {
+            0: "ACTIVE",
+            1: "PAUSED",
+            2: "REFUNDED",
+        }.get(status, f"UNKNOWN_{status}")
