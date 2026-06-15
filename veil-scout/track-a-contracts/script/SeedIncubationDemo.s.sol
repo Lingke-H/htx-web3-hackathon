@@ -6,8 +6,7 @@ import { Script, console2 } from "forge-std/Script.sol";
 import { IncubationVault } from "../src/IncubationVault.sol";
 
 contract SeedIncubationDemo is Script {
-    uint256 private constant DEFAULT_ANVIL_PRIVATE_KEY =
-        0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+    address private constant DEFAULT_ANVIL_DEPLOYER = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
     uint256 private constant FIXED_MILESTONE_RELEASE_AMOUNT = 4_000;
     uint256 private constant FIXED_MILESTONE_COUNT = 3;
 
@@ -34,7 +33,11 @@ contract SeedIncubationDemo is Script {
             "Incubation demo already seeded for this deployment"
         );
 
-        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", DEFAULT_ANVIL_PRIVATE_KEY);
+        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0));
+        address deployer = vm.envOr("DEPLOYER_ADDRESS", DEFAULT_ANVIL_DEPLOYER);
+        if (deployerPrivateKey != 0) {
+            deployer = vm.addr(deployerPrivateKey);
+        }
         address sponsor = vm.envOr("INCUBATION_SPONSOR", address(0x5150));
         address projectOwner = vm.envOr("INCUBATION_PROJECT_OWNER", address(0xA613));
         string memory projectSlug = vm.envOr("INCUBATION_PROJECT_SLUG", string("agentpay"));
@@ -63,7 +66,11 @@ contract SeedIncubationDemo is Script {
             "INCUBATION_TOTAL_BUDGET must equal seeded milestone total"
         );
 
-        vm.startBroadcast(deployerPrivateKey);
+        if (deployerPrivateKey != 0) {
+            vm.startBroadcast(deployerPrivateKey);
+        } else {
+            vm.startBroadcast(deployer);
+        }
         vaultId = deployment.incubationVault
             .createVault(
                 projectOwner,

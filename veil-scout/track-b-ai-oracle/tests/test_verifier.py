@@ -11,7 +11,10 @@ class FakeChain:
     def snapshot_event_count(self, address, from_block=0, to_block="latest", topic0=None):
         return ChainSnapshot(rpc_url="mock", contract_event_counts={address: 12}, latest_block=100)
 
-    deployment = {"incubationVault": "0x000000000000000000000000000000000000c0de"}
+    deployment = {
+        "incubationVault": "0x000000000000000000000000000000000000c0de",
+        "deployer": "0x000000000000000000000000000000000000b0b0",
+    }
 
     def get_incubation_vault(self, vault_id: int):
         assert vault_id == 3
@@ -40,7 +43,7 @@ class FakeChain:
         return (
             f'cast send 0x000000000000000000000000000000000000c0de '
             f'"releaseMilestone(uint256,uint256,string)" {vault_id} {milestone_id} '
-            f"--rpc-url $RPC_URL --private-key $ORACLE_PRIVATE_KEY"
+            f"--rpc-url $RPC_URL --unlocked --from 0x000000000000000000000000000000000000b0b0"
         )
 
 

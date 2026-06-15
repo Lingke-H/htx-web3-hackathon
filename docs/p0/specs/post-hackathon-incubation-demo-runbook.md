@@ -147,7 +147,8 @@ cast send <INCUBATION_VAULT_ADDRESS> \
   1 \
   "Proof-of-execution verified; release the second fixed sponsor tranche." \
   --rpc-url http://127.0.0.1:8545 \
-  --private-key $ORACLE_PRIVATE_KEY
+  --unlocked \
+  --from 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 ```
 
 This remains an authorized demo action. It is not automatic funding.

@@ -7,8 +7,7 @@ import { IncubationVault } from "../src/IncubationVault.sol";
 import { SeedIncubationDemo } from "../script/SeedIncubationDemo.s.sol";
 
 contract SeedIncubationDemoTest is Test {
-    uint256 private constant DEFAULT_ANVIL_PRIVATE_KEY =
-        0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+    address private constant DEFAULT_ANVIL_DEPLOYER = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     function testDemoBudgetMatchesFixedMilestones() public {
         SeedIncubationDemo script = new SeedIncubationDemo();
@@ -19,7 +18,7 @@ contract SeedIncubationDemoTest is Test {
         vm.chainId(31_337);
 
         IncubationVault vault = new IncubationVault();
-        address deployer = vm.addr(DEFAULT_ANVIL_PRIVATE_KEY);
+        address deployer = DEFAULT_ANVIL_DEPLOYER;
         vault.grantRole(vault.VAULT_MANAGER_ROLE(), deployer);
         vault.grantRole(vault.ORACLE_ROLE(), deployer);
 

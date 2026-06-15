@@ -134,10 +134,11 @@ class ChainClient:
         self, vault_id: int, milestone_id: int, execution_summary: str
     ) -> str:
         quoted_summary = shlex.quote(" ".join(execution_summary.split()))
+        reviewer_address = self.deployment.get("deployer", "$DEPLOYER_ADDRESS")
         return (
             f'cast send {self.deployment["incubationVault"]} '
             f'"releaseMilestone(uint256,uint256,string)" {vault_id} {milestone_id} '
-            f"{quoted_summary} --rpc-url $RPC_URL --private-key $ORACLE_PRIVATE_KEY"
+            f"{quoted_summary} --rpc-url $RPC_URL --unlocked --from {reviewer_address}"
         )
 
     def _contract(self, name: str, address: str):

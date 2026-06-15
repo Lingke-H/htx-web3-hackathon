@@ -12,14 +12,23 @@ The P0 contracts do not expose `seedInitialOdds`, so AI Prior is stored in JSON 
 
 ```bash
 cd veil-scout/track-b-ai-oracle
-python3.11 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
+python --version
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install -e . --no-build-isolation
 cp .env.example .env
 ```
 
-Set `OPENAI_API_KEY`, `RPC_URL`, `PRIVATE_KEY`, and `DEPLOYMENT_JSON` in `.env`.
+Use Python `3.11+`. Then set `OPENAI_API_KEY`, `RPC_URL`, `PRIVATE_KEY`, and `DEPLOYMENT_JSON` in `.env`.
+
+If your system `python3` is older, install a newer interpreter first, for example on macOS/Homebrew:
+
+```bash
+brew install python@3.13
+export PATH="/opt/homebrew/opt/python@3.13/libexec/bin:$PATH"
+```
 
 ## Commands
 
@@ -36,6 +45,7 @@ For local Anvil, deploy Track A first:
 
 ```bash
 cd ../track-a-contracts
+export PATH="$HOME/.foundry/bin:$PATH"
 forge script script/DeployP0.s.sol:DeployP0 --rpc-url http://127.0.0.1:8545 --broadcast
 ```
 

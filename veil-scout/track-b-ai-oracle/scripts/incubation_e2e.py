@@ -7,13 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from eth_account import Account
 from web3 import Web3
-
-
-DEFAULT_PRIVATE_KEY = (
-    "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-)
 
 
 def parse_args() -> argparse.Namespace:
@@ -155,23 +149,22 @@ def assert_assessment_report(contract, report_path: Path, vault_id: int, milesto
     require(int(vault[4]) == 4_000, "assess-release must not change released budget")
 
 
-def manual_release(w3: Web3, contract, vault_id: int, milestone_id: int) -> str:
-    private_key = os.environ.get("ORACLE_PRIVATE_KEY") or os.environ.get("PRIVATE_KEY") or DEFAULT_PRIVATE_KEY
-    account = Account.from_key(private_key)
-    tx = contract.functions.releaseMilestone(
+def manual_release(
+    w3: Web3,
+    contract,
+    deployment: dict,
+    vault_id: int,
+    milestone_id: int,
+) -> str:
+    reviewer_address = os.environ.get("ORACLE_REVIEWER_ADDRESS") or deployment["deployer"]
+    tx_hash = contract.functions.releaseMilestone(
         vault_id,
         milestone_id,
         "Smoke test reviewer release after advisory verification.",
-    ).build_transaction({
-        "from": account.address,
-        "nonce": w3.eth.get_transaction_count(account.address),
-        "chainId": int(w3.eth.chain_id),
+    ).transact({
+        "from": Web3.to_checksum_address(reviewer_address),
         "gasPrice": w3.eth.gas_price,
     })
-    tx["gas"] = int(w3.eth.estimate_gas(tx) * 1.2)
-    signed = account.sign_transaction(tx)
-    raw_tx = getattr(signed, "raw_transaction", None) or signed.rawTransaction
-    tx_hash = w3.eth.send_raw_transaction(raw_tx)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     require(int(receipt["status"]) == 1, "manual milestone release transaction failed")
     return receipt["transactionHash"].hex()
@@ -203,7 +196,7 @@ def main() -> None:
     project_path = write_project_config(args.track_b_data_dir, deployment["incubationVault"])
     report_path = run_assess_release(args, project_path, vault_id, 1)
     assert_assessment_report(contract, report_path, vault_id, 1)
-    release_tx_hash = manual_release(w3, contract, vault_id, 1)
+    release_tx_hash = manual_release(w3, contract, deployment, vault_id, 1)
     assert_released_state(contract, vault_id, 1)
 
     summary = {
