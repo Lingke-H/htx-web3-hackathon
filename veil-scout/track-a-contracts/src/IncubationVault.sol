@@ -50,7 +50,8 @@ contract IncubationVault is AccessManaged {
     uint256 public nextVaultId;
 
     mapping(uint256 vaultId => VaultData vault) private _vaults;
-    mapping(uint256 vaultId => mapping(uint256 milestoneId => Milestone milestone)) private _milestones;
+    mapping(uint256 vaultId => mapping(uint256 milestoneId => Milestone milestone)) private
+        _milestones;
 
     event VaultCreated(
         uint256 indexed vaultId,
@@ -60,7 +61,11 @@ contract IncubationVault is AccessManaged {
         string metadataURI
     );
     event MilestoneRecorded(
-        uint256 indexed vaultId, uint256 indexed milestoneId, string label, uint256 releaseAmount, string metadataURI
+        uint256 indexed vaultId,
+        uint256 indexed milestoneId,
+        string label,
+        uint256 releaseAmount,
+        string metadataURI
     );
     event MilestoneReleased(
         uint256 indexed vaultId,
@@ -77,11 +82,12 @@ contract IncubationVault is AccessManaged {
         _grantRole(ORACLE_ROLE, msg.sender);
     }
 
-    function createVault(address projectOwner, address sponsor, uint256 totalBudget, string calldata metadataURI)
-        external
-        onlyRole(VAULT_MANAGER_ROLE)
-        returns (uint256 vaultId)
-    {
+    function createVault(
+        address projectOwner,
+        address sponsor,
+        uint256 totalBudget,
+        string calldata metadataURI
+    ) external onlyRole(VAULT_MANAGER_ROLE) returns (uint256 vaultId) {
         if (projectOwner == address(0) || sponsor == address(0)) revert InvalidAddress();
         if (totalBudget == 0) revert InvalidBudget();
 
@@ -101,11 +107,12 @@ contract IncubationVault is AccessManaged {
         emit VaultCreated(vaultId, projectOwner, sponsor, totalBudget, metadataURI);
     }
 
-    function recordMilestone(uint256 vaultId, string calldata label, uint256 releaseAmount, string calldata metadataURI)
-        external
-        onlyRole(VAULT_MANAGER_ROLE)
-        returns (uint256 milestoneId)
-    {
+    function recordMilestone(
+        uint256 vaultId,
+        string calldata label,
+        uint256 releaseAmount,
+        string calldata metadataURI
+    ) external onlyRole(VAULT_MANAGER_ROLE) returns (uint256 milestoneId) {
         VaultData storage vault = _requireActiveVault(vaultId);
         if (releaseAmount == 0) revert InvalidBudget();
 
@@ -119,19 +126,17 @@ contract IncubationVault is AccessManaged {
         vault.allocatedBudget = newAllocatedBudget;
 
         _milestones[vaultId][milestoneId] = Milestone({
-            label: label,
-            releaseAmount: releaseAmount,
-            metadataURI: metadataURI,
-            released: false
+            label: label, releaseAmount: releaseAmount, metadataURI: metadataURI, released: false
         });
 
         emit MilestoneRecorded(vaultId, milestoneId, label, releaseAmount, metadataURI);
     }
 
-    function releaseMilestone(uint256 vaultId, uint256 milestoneId, string calldata executionSummary)
-        external
-        onlyRole(ORACLE_ROLE)
-    {
+    function releaseMilestone(
+        uint256 vaultId,
+        uint256 milestoneId,
+        string calldata executionSummary
+    ) external onlyRole(ORACLE_ROLE) {
         VaultData storage vault = _requireActiveVault(vaultId);
         Milestone storage milestone = _requireMilestone(vaultId, milestoneId, vault.milestoneCount);
         if (milestone.released) revert MilestoneAlreadyReleased(vaultId, milestoneId);
@@ -139,7 +144,9 @@ contract IncubationVault is AccessManaged {
         milestone.released = true;
         vault.releasedBudget += milestone.releaseAmount;
 
-        emit MilestoneReleased(vaultId, milestoneId, milestone.releaseAmount, vault.releasedBudget, executionSummary);
+        emit MilestoneReleased(
+            vaultId, milestoneId, milestone.releaseAmount, vault.releasedBudget, executionSummary
+        );
     }
 
     function pauseVault(uint256 vaultId, string calldata reasonURI) external onlyRole(ORACLE_ROLE) {
@@ -151,7 +158,11 @@ contract IncubationVault is AccessManaged {
         emit VaultPaused(vaultId, reasonURI);
     }
 
-    function refundRemainingBudget(uint256 vaultId) external onlyRole(VAULT_MANAGER_ROLE) returns (uint256 refundedAmount) {
+    function refundRemainingBudget(uint256 vaultId)
+        external
+        onlyRole(VAULT_MANAGER_ROLE)
+        returns (uint256 refundedAmount)
+    {
         VaultData storage vault = _requireVault(vaultId);
         if (vault.status == VaultStatus.REFUNDED) revert VaultAlreadyRefunded(vaultId);
         if (vault.status != VaultStatus.PAUSED) revert RefundRequiresPausedVault(vaultId);
@@ -169,7 +180,11 @@ contract IncubationVault is AccessManaged {
         return _requireVault(vaultId);
     }
 
-    function getMilestone(uint256 vaultId, uint256 milestoneId) external view returns (Milestone memory) {
+    function getMilestone(uint256 vaultId, uint256 milestoneId)
+        external
+        view
+        returns (Milestone memory)
+    {
         VaultData storage vault = _requireVault(vaultId);
         return _requireMilestone(vaultId, milestoneId, vault.milestoneCount);
     }

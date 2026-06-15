@@ -26,7 +26,19 @@ Then open [http://localhost:3000](http://localhost:3000).
 - `lib/demo-data.ts`: mock data used by the preview
 - `app/globals.css`: visual system, background, and panel styling
 
+## Optional Live Incubation Read
+
+The incubation panel can read a seeded `IncubationVault` when an injected wallet/provider is available:
+
+```bash
+export NEXT_PUBLIC_INCUBATION_VAULT_ADDRESS=0x...
+export NEXT_PUBLIC_INCUBATION_VAULT_ID=0
+export NEXT_PUBLIC_INCUBATION_SELECTED_PROJECT=AgentPay
+```
+
+Without a configured address, without a provider, or when the network read fails, the panel falls back to clearly labeled demo data.
+
 ## Notes
 
-- This UI is intentionally mock-data driven for fast hackathon demos.
-- The next integration step is swapping `lib/demo-data.ts` for reads backed by `track-a-contracts/abi` and deployment addresses.
+- This UI is still demo-first and keeps the scout market flow intact.
+- The incubation panel now supports a narrow live-read path with a deliberate mock fallback.

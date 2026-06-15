@@ -101,7 +101,13 @@ contract MarketFuzzTest is Test {
         uint256 deadline = block.timestamp + 1 days;
         bytes32 digest = keccak256(
             abi.encodePacked(
-                scoutId, uint256(0), wallet, block.chainid, address(ledger), ledger.claimNonce(wallet), deadline
+                scoutId,
+                uint256(0),
+                wallet,
+                block.chainid,
+                address(ledger),
+                ledger.claimNonce(wallet),
+                deadline
             )
         );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(SIGNER_PK, digest);

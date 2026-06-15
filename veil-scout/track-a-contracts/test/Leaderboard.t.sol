@@ -118,7 +118,7 @@ contract LeaderboardTest is Test {
         leaderboard.updateScore(scoutC, 0, 100, 1);
         vm.stopPrank();
 
-        (bytes32[] memory scouts, ) = leaderboard.getTopN(0, 2);
+        (bytes32[] memory scouts,) = leaderboard.getTopN(0, 2);
         assertEq(scouts.length, 2);
         assertEq(scouts[0], scoutA);
         assertEq(scouts[1], scoutB);

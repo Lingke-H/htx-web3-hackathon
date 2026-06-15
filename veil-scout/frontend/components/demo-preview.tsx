@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/table";
 import { TextField } from "@/components/ui/text-field";
 import { useAppState } from "@/lib/app-state";
+import { useIncubationPanelState } from "@/lib/incubation-live";
 import type { ActionState, StatusTone } from "@/lib/demo-data";
 import { useWalletState } from "@/lib/wallet-state";
 import { cn } from "@/lib/utils";
@@ -177,10 +178,12 @@ export function DemoPreview() {
     value: Number.parseInt(market.exposure, 10) || 0,
     tone: market.tone,
   }));
-  const incubation = content.incubation;
+  const incubationState = useIncubationPanelState(locale, content.incubation, chainName);
+  const incubation = incubationState.incubation;
   const formatBudget = (value: number) =>
     new Intl.NumberFormat(locale === "zh" ? "zh-CN" : "en-US").format(value);
-  const incubationReleaseProgress = Math.round((incubation.releasedBudget / incubation.totalBudget) * 100);
+  const incubationReleaseProgress =
+    incubation.totalBudget > 0 ? Math.round((incubation.releasedBudget / incubation.totalBudget) * 100) : 0;
   const metricTraces = [
     [46, 50, 56, 61, 66, 70],
     [20, 26, 31, 29, 34, 37],
@@ -729,9 +732,9 @@ export function DemoPreview() {
                     </div>
 
                     <div className="mt-4 flex h-3 overflow-hidden rounded-full bg-white/[0.05]">
-                      {exposureSeries.map((item) => (
+                      {exposureSeries.map((item, index) => (
                         <div
-                          key={item.label}
+                          key={`${item.label}-${index}`}
                           className={cn(
                             item.tone === "accent" && "bg-cyan-400",
                             item.tone === "positive" && "bg-emerald-400/80",
@@ -943,7 +946,10 @@ export function DemoPreview() {
                         {incubation.executionBadge}
                       </Badge>
                       <Badge className="border-white/12 bg-white/[0.04] text-slate-100" variant="outline">
-                        P0.5 / Mock Incubation
+                        {incubationState.dataSourceLabel}
+                      </Badge>
+                      <Badge className="border-emerald-300/30 bg-emerald-400/12 text-emerald-50" variant="outline">
+                        {incubation.milestoneCountLabel}: {incubation.milestoneCount}
                       </Badge>
                     </div>
 
@@ -1007,6 +1013,18 @@ export function DemoPreview() {
                       {formatBudget(incubation.releasedBudget)} {locale === "zh" ? "赞助单位" : "sponsor units"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-300">{incubationReleaseProgress}% released</p>
+                  </div>
+
+                  <div className="data-row rounded-[24px] px-4 py-4">
+                    <p className="terminal-label">{incubation.refundedBudgetLabel}</p>
+                    <p className="mt-3 font-mono text-[1.42rem] font-semibold tracking-[0.04em] text-slate-100">
+                      {formatBudget(incubation.refundedBudget)} {locale === "zh" ? "赞助单位" : "sponsor units"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {locale === "zh"
+                        ? "只有在暂停后，剩余 sponsor 单位才会进入退款路径。"
+                        : "Refund accounting only starts after the vault is paused."}
+                    </p>
                   </div>
 
                   <div className="data-row rounded-[24px] px-4 py-4">

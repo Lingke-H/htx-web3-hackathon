@@ -11,6 +11,7 @@
 | `MarketFactory.sol` | ~35 | Thin entry point for creating markets |
 | `Market.sol` | ~365 | Core market logic: trade, settle, void, claim, sweep, odds calculation |
 | `Leaderboard.sol` | ~110 | Score tracking + on-chain `getTopN` ranking |
+| `IncubationVault.sol` | ~170 | Separate sponsor-budget accounting for post-hackathon milestone release |
 
 ## Architecture
 
@@ -53,7 +54,7 @@ forge build
 forge test --summary
 ```
 
-**Current status:** 68 tests, all passing.
+**Current status:** run `forge test --summary` for the current passing suite, including `IncubationVault` coverage.
 
 ### Test Coverage
 
@@ -65,6 +66,7 @@ forge test --summary
 | `MarketFactoryTest` | 6 | Create market, auth, events |
 | `LeaderboardTest` | 13 | Score updates, getTopN sorting, multi-season |
 | `IntegrationTest` | 4 | Full lifecycle: season → claim → trade → settle → claim → rank |
+| `IncubationVaultTest` | focused | Vault creation, milestone release, pause, refund, and access-control checks |
 
 ## Deploy
 
@@ -94,6 +96,18 @@ forge script script/DeployP0.s.sol:DeployP0 \
 ```
 
 Supported testnets: Base Sepolia, Arbitrum Sepolia.
+
+## Seed A Demo Incubation Vault
+
+After `deployment.json` exists on local Anvil, seed a single incubation demo vault:
+
+```bash
+forge script script/SeedIncubationDemo.s.sol:SeedIncubationDemo \
+  --rpc-url http://127.0.0.1:8545 \
+  --broadcast
+```
+
+This writes `incubation-demo.json` with the demo `vaultId`, milestone states, and the deployed `IncubationVault` address. The script refuses to create a second demo vault on the same deployment so reruns do not silently duplicate state.
 
 ## Key Parameters
 

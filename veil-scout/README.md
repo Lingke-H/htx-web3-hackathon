@@ -21,6 +21,7 @@ Useful commands after installing Foundry:
 cd veil-scout/track-a-contracts
 forge build
 forge test --summary
+forge script script/SeedIncubationDemo.s.sol:SeedIncubationDemo --rpc-url http://127.0.0.1:8545 --broadcast
 ```
 
 ## Track B: AI + Oracle
@@ -33,6 +34,7 @@ Useful commands after creating the Python environment:
 cd veil-scout/track-b-ai-oracle
 python -m track_b.cli analyze --project data/projects/agentpay.json
 python -m track_b.cli verify --project data/projects/agentpay.json --market-id 0
+python -m track_b.cli assess-release --project data/projects/agentpay.json --market-id 0 --vault-id 0 --milestone-id 1
 ```
 
 ## Track C: Frontend
