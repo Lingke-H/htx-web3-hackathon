@@ -197,7 +197,13 @@ P0.8 merge run already confirmed:
 - `frontend`: success
 - `incubation-e2e`: success
 
-> Final submission-freeze run and job links are updated after the final freeze PR merges.
+Final submission-freeze run:
+
+- run `27571382298`
+- `foundry`: success
+- `python`: success
+- `frontend`: success
+- `incubation-e2e`: success
 
 ## Browser Verification Results
 
@@ -305,10 +311,10 @@ Fallback triggers include:
 ### Final Freeze Publication
 
 - branch: `codex/p08-submission-freeze`
-- final freeze PR: pending
-- final freeze merge commit: pending
-- release tag: pending
-- release URL: pending
+- final freeze PR: `#6` <https://github.com/Lingke-H/htx-web3-hackathon/pull/6>
+- final freeze merge commit: `940f22d476e0efe1096421b296597181fbf26424`
+- release tag: `v0.8.0-demo`
+- release URL: <https://github.com/Lingke-H/htx-web3-hackathon/releases/tag/v0.8.0-demo>
 
 ## Exact One-Command Demo Command
 
