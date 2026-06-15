@@ -25,9 +25,19 @@ def test_verify_github_merged_prs_passes() -> None:
             "github_repo": "owner/repo",
         },
     })
-    report = verify_project(project, 7, github_client=FakeGitHub())
+    report = verify_project(
+        project,
+        7,
+        github_client=FakeGitHub(),
+        milestone_id="m1",
+        recommended_release_amount=2500,
+    )
     assert report.passed is True
+    assert report.milestoneId == "m1"
     assert report.observedMetrics["mergedPrs"] == 3
+    assert report.recommendedReleaseAmount == 2500
+    assert report.pauseRecommendation is False
+    assert "recommend releasing" in report.executionSummary
     assert report.dataSourceStatus["github"] == "available"
     assert "Result is PASS" in report.settlementRationale
     assert report.limitations
@@ -46,9 +56,19 @@ def test_verify_contract_event_count_passes() -> None:
             "contract": {"address": "0x0000000000000000000000000000000000000000"},
         },
     })
-    report = verify_project(project, 7, chain_client=FakeChain())
+    report = verify_project(
+        project,
+        7,
+        chain_client=FakeChain(),
+        milestone_id="m2",
+        recommended_release_amount=4000,
+    )
     assert report.passed is True
+    assert report.milestoneId == "m2"
     assert report.observedMetrics["eventCount"] == 12
+    assert report.recommendedReleaseAmount == 4000
+    assert report.pauseRecommendation is False
+    assert "recommend releasing" in report.executionSummary
     assert report.dataSourceStatus["chain"] == "available"
     assert "Result is PASS" in report.settlementRationale
     assert report.limitations

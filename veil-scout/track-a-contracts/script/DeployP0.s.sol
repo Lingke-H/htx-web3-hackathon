@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import { Script, console2 } from "forge-std/Script.sol";
 
 import { CreditLedger } from "../src/CreditLedger.sol";
+import { IncubationVault } from "../src/IncubationVault.sol";
 import { Leaderboard } from "../src/Leaderboard.sol";
 import { Market } from "../src/Market.sol";
 import { MarketFactory } from "../src/MarketFactory.sol";
@@ -25,6 +26,7 @@ contract DeployP0 is Script {
         address leaderboard;
         address market;
         address marketFactory;
+        address incubationVault;
         uint256 seasonStart;
         uint256 seasonEnd;
     }
@@ -50,6 +52,7 @@ contract DeployP0 is Script {
             ISeason(address(season))
         );
         MarketFactory marketFactory = new MarketFactory(address(market));
+        IncubationVault incubationVault = new IncubationVault();
 
         creditLedger.grantRole(creditLedger.MARKET_ROLE(), address(market));
         leaderboard.grantRole(leaderboard.MARKET_ROLE(), address(market));
@@ -68,6 +71,7 @@ contract DeployP0 is Script {
         output.leaderboard = address(leaderboard);
         output.market = address(market);
         output.marketFactory = address(marketFactory);
+        output.incubationVault = address(incubationVault);
 
         string memory path = string.concat(vm.projectRoot(), "/deployment.json");
         string memory json = _deploymentJson(output);
@@ -80,6 +84,7 @@ contract DeployP0 is Script {
         console2.log("leaderboard:", address(leaderboard));
         console2.log("market:", address(market));
         console2.log("marketFactory:", address(marketFactory));
+        console2.log("incubationVault:", address(incubationVault));
     }
 
     function _deploymentJson(DeploymentOutput memory output) private view returns (string memory) {
@@ -123,6 +128,9 @@ contract DeployP0 is Script {
             '",\n',
             '  "marketFactory": "',
             vm.toString(output.marketFactory),
+            '",\n',
+            '  "incubationVault": "',
+            vm.toString(output.incubationVault),
             '",\n'
         );
     }
@@ -145,6 +153,8 @@ contract DeployP0 is Script {
         bytes32 marketRole = keccak256("MARKET_ROLE");
         bytes32 marketCreatorRole = keccak256("MARKET_CREATOR_ROLE");
         bytes32 settlementRole = keccak256("SETTLEMENT_ROLE");
+        bytes32 vaultManagerRole = keccak256("VAULT_MANAGER_ROLE");
+        bytes32 oracleRole = keccak256("ORACLE_ROLE");
         bytes32 defaultAdminRole = bytes32(0);
 
         return string.concat(
@@ -157,6 +167,12 @@ contract DeployP0 is Script {
             '",\n',
             '    "SETTLEMENT_ROLE": "',
             vm.toString(settlementRole),
+            '",\n',
+            '    "VAULT_MANAGER_ROLE": "',
+            vm.toString(vaultManagerRole),
+            '",\n',
+            '    "ORACLE_ROLE": "',
+            vm.toString(oracleRole),
             '",\n',
             '    "DEFAULT_ADMIN_ROLE": "',
             vm.toString(defaultAdminRole),

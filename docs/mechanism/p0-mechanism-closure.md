@@ -6,6 +6,15 @@ This document turns the original open questions into explicit P0 policy and P1 r
 
 Veil Scout P0 is a **credit-based scout judgment tournament**, not a full prediction market.
 
+Veil Scout P0.5 adds a **separate incubation layer** for post-hackathon sponsor budget release.
+
+Important boundary:
+
+- scout credits are still not money
+- market outcomes do not directly release sponsor capital
+- incubation release decisions live in a separate vault flow
+- P0.5 still avoids per-second streaming and real-money wagering
+
 P0 intentionally does **not** implement:
 
 - AMM / LMSR pricing
@@ -167,3 +176,6 @@ The honest P0 sentence:
 
 > Veil Scout P0 uses a trusted oracle and non-transferable credits to prove that AI-assisted scout judgment can discover real builders; P1 decentralizes settlement and expands reputation.
 
+The honest P0.5 sentence:
+
+> Veil Scout P0.5 keeps the credit-based scout market for builder discovery and adds a separate proof-of-execution incubation layer for fixed sponsor budget release.

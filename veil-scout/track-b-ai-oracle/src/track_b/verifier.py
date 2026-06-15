@@ -10,6 +10,8 @@ def verify_project(
     market_id: int,
     github_client: GitHubClient | None = None,
     chain_client: ChainClient | None = None,
+    milestone_id: str | None = None,
+    recommended_release_amount: int | None = None,
 ) -> VerificationReport:
     rule = project.verification_rule
     data_sources: list[str] = []
@@ -42,6 +44,10 @@ def verify_project(
             f"Observed {observed_value} matching contract events for {contract.address}; "
             f"target is {rule.target}. Result is {'PASS' if passed else 'FAIL'}."
         )
+        execution_summary = (
+            f"Observed {observed_value} matching contract events against a target of {rule.target}; "
+            f"{'recommend releasing the next fixed sponsor tranche' if passed else 'recommend pausing further release pending review'}."
+        )
         limitations.append("P0 verifier counts matching logs only; it does not yet filter unique wallets or wash activity.")
     elif rule.type == "github_merged_prs":
         if github_client is None:
@@ -61,6 +67,10 @@ def verify_project(
             f"Observed {observed_value} merged pull requests for {repo}; "
             f"target is {rule.target}. Result is {'PASS' if passed else 'FAIL'}."
         )
+        execution_summary = (
+            f"Observed {observed_value} merged pull requests against a target of {rule.target}; "
+            f"{'recommend releasing the next fixed sponsor tranche' if passed else 'recommend pausing further release pending review'}."
+        )
         limitations.append("P0 verifier counts merged PRs only; it does not judge PR quality or production deployment.")
     else:
         raise ValueError(f"unsupported rule: {rule.type}")
@@ -68,7 +78,11 @@ def verify_project(
     return VerificationReport(
         projectSlug=project.slug,
         marketId=market_id,
+        milestoneId=milestone_id,
         passed=passed,
+        recommendedReleaseAmount=recommended_release_amount if passed else 0,
+        pauseRecommendation=not passed,
+        executionSummary=execution_summary,
         rule=rule,
         observedMetrics=observed,
         evidence=EvidenceBundle(github=github_snapshot, chain=chain_snapshot),

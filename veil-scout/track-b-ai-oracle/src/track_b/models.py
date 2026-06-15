@@ -118,7 +118,11 @@ class AIReport(BaseModel):
 class VerificationReport(BaseModel):
     projectSlug: str
     marketId: int
+    milestoneId: str | None = None
     passed: bool
+    recommendedReleaseAmount: int | None = Field(default=None, ge=0)
+    pauseRecommendation: bool = False
+    executionSummary: str = ""
     rule: VerificationRule
     observedMetrics: dict[str, Any]
     evidence: EvidenceBundle | None = None

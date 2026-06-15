@@ -83,7 +83,11 @@ Verification report shape:
 {
   "projectSlug": "agentpay",
   "marketId": 0,
+  "milestoneId": "m1",
   "passed": true,
+  "recommendedReleaseAmount": 2500,
+  "pauseRecommendation": false,
+  "executionSummary": "Observed 3 matching contract events against a target of 1; recommend releasing the next fixed sponsor tranche.",
   "rule": {},
   "observedMetrics": {},
   "evidence": {},
@@ -115,6 +119,7 @@ Each market detail view should show:
 - **Crowd Odds** from `Market.getYesOdds(marketId)`.
 - **Verification Criteria** from local market metadata / project config: binary question, deadline, data source, PASS/FAIL formula.
 - **Oracle Report** from Track B settlement JSON when available: `passed`, `settlementRationale`, `observedMetrics`, `dataSourceStatus`, and `limitations`.
+- **Incubation Report Fields** when post-hackathon support is shown: `milestoneId`, `recommendedReleaseAmount`, `pauseRecommendation`, and `executionSummary`.
 - **Trust Boundary badge**: “P0 trusted oracle.”
 
 Avoid frontend labels that imply AI controls the market:

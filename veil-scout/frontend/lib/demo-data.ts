@@ -50,10 +50,12 @@ const englishContent = {
   shell: {
     brandLabel: "HTX Web3 Hackathon",
     brandName: "VEIL SCOUT",
-    brandDescription: "AI-assisted scout discovery console for credit markets, oracle review, and manual release.",
+    brandDescription:
+      "AI-assisted scout discovery console for credit markets, oracle review, and post-hackathon sponsor release.",
     navigation: [
       { label: "Overview", value: "overview", active: true },
       { label: "Markets", value: "markets", active: false },
+      { label: "Incubation", value: "incubation", active: false },
       { label: "Approvals", value: "approvals", active: false },
       { label: "Settlement", value: "settlement", active: false },
     ],
@@ -71,9 +73,9 @@ const englishContent = {
   },
   hero: {
     eyebrow: "AI oracle mission desk",
-    title: "Pilot AI prior, crowd odds, and oracle-settled scout markets from one mission control deck.",
+    title: "Pilot AI prior, crowd odds, oracle settlement, and post-hackathon sponsor release from one mission control deck.",
     description:
-      "Veil Scout turns scout discovery into a credit-based prediction loop: connect a wallet, inspect the AI prior, compare crowd odds, and manually release only the market actions that deserve execution.",
+      "Veil Scout turns scout discovery into a credit-based prediction loop, then carries selected builders into a separate proof-of-execution incubation lane with milestone-based sponsor budget release.",
     primaryCta: "Open approval review",
     connectCta: "Connect wallet",
     secondaryCta: "View settlement path",
@@ -278,6 +280,51 @@ const englishContent = {
       },
     },
   ] satisfies DemoMarket[],
+  incubation: {
+    eyebrow: "Post-hackathon incubation",
+    title: "Keep sponsor budget gated after discovery",
+    description:
+      "Scout markets discover signal. Incubation vaults stay separate and release fixed sponsor tranches only after proof-of-execution clears review.",
+    selectedProjectLabel: "Selected project",
+    selectedProject: "ZKDocs",
+    executionBadge: "Execution badge: Verified follow-through (mock)",
+    statusLabel: "ACTIVE",
+    statusTone: "positive" as const,
+    totalBudgetLabel: "Total sponsor budget",
+    releasedBudgetLabel: "Released budget",
+    remainingBudgetLabel: "Remaining budget",
+    totalBudget: 12_000,
+    releasedBudget: 4_000,
+    remainingBudget: 8_000,
+    note:
+      "P0.5 keeps sponsor budget accounting separate from scout credits. Releases are fixed milestone tranches, not per-second streaming.",
+    milestones: [
+      {
+        id: "M1",
+        title: "Contributor PR tranche",
+        summary: "Oracle verified 7 merged PRs against a 5 PR target and released the first sponsor tranche.",
+        releaseAmount: 4_000,
+        state: "complete" as const,
+        signal: "Released",
+      },
+      {
+        id: "M2",
+        title: "Docs API integration tranche",
+        summary: "API integration is now the active review lane. Release remains blocked until the next proof-of-execution check.",
+        releaseAmount: 4_000,
+        state: "current" as const,
+        signal: "Under review",
+      },
+      {
+        id: "M3",
+        title: "Post-hackathon usage tranche",
+        summary: "The final tranche stays locked until usage and maintenance remain visible after the event.",
+        releaseAmount: 4_000,
+        state: "upcoming" as const,
+        signal: "Queued",
+      },
+    ],
+  },
   agent: {
     eyebrow: "AI Prior explanation",
     recommendation: "Release at most 350 SCOUT into YES",
@@ -469,10 +516,11 @@ const chineseContent: typeof englishContent = {
   shell: {
     brandLabel: "HTX Web3 Hackathon",
     brandName: "VEIL SCOUT",
-    brandDescription: "一个用于 AI 辅助 Scout 发现、信用市场复核和人工放行的主控台。",
+    brandDescription: "一个用于 AI 辅助 Scout 发现、信用市场复核和赛后 sponsor 放款的主控台。",
     navigation: [
       { label: "总览", value: "overview", active: true },
       { label: "市场", value: "markets", active: false },
+      { label: "孵化", value: "incubation", active: false },
       { label: "审批", value: "approvals", active: false },
       { label: "结算", value: "settlement", active: false },
     ],
@@ -490,9 +538,9 @@ const chineseContent: typeof englishContent = {
   },
   hero: {
     eyebrow: "AI 预言机任务台",
-    title: "把 AI 先验、群体赔率和预言机结算过的 Scout 市场收进同一个主控舱。",
+    title: "把 AI 先验、群体赔率、预言机结算和赛后 sponsor 放款收进同一个主控舱。",
     description:
-      "Veil Scout 把 Scout 发现做成一个基于积分的预测闭环：先连接钱包，再查看 AI 先验、对比群体赔率，最后只手动放行那些真正值得执行的市场动作。",
+      "Veil Scout 先把 Scout 发现做成一个基于积分的预测闭环，再把被发现的强项目送入独立的 proof-of-execution 孵化通道，用里程碑方式逐步释放 sponsor 预算。",
     primaryCta: "进入审批复核",
     connectCta: "连接钱包",
     secondaryCta: "查看结算路径",
@@ -696,6 +744,51 @@ const chineseContent: typeof englishContent = {
       },
     },
   ] satisfies DemoMarket[],
+  incubation: {
+    eyebrow: "赛后孵化",
+    title: "发现强项目之后，sponsor 预算继续受控释放",
+    description:
+      "Scout 市场负责发现信号。孵化金库与市场分离，只会在 proof-of-execution 通过后按固定 tranche 释放 sponsor 预算。",
+    selectedProjectLabel: "入选项目",
+    selectedProject: "ZKDocs",
+    executionBadge: "执行徽章：持续交付已验证（mock）",
+    statusLabel: "ACTIVE",
+    statusTone: "positive" as const,
+    totalBudgetLabel: "Sponsor 总预算",
+    releasedBudgetLabel: "已释放预算",
+    remainingBudgetLabel: "剩余预算",
+    totalBudget: 12_000,
+    releasedBudget: 4_000,
+    remainingBudget: 8_000,
+    note:
+      "P0.5 会把 sponsor 预算记账与 scout credits 分开。预算释放走固定里程碑 tranche，不做按秒 streaming。",
+    milestones: [
+      {
+        id: "M1",
+        title: "贡献者 PR tranche",
+        summary: "Oracle 已验证 7 个 merged PR，高于 5 个目标，因此释放第一笔 sponsor tranche。",
+        releaseAmount: 4_000,
+        state: "complete" as const,
+        signal: "已释放",
+      },
+      {
+        id: "M2",
+        title: "Docs API 集成 tranche",
+        summary: "API 集成现在处于活跃复核阶段；下一次 proof-of-execution 通过前不会释放预算。",
+        releaseAmount: 4_000,
+        state: "current" as const,
+        signal: "复核中",
+      },
+      {
+        id: "M3",
+        title: "赛后使用量 tranche",
+        summary: "最后一笔 tranche 会继续锁定，直到赛后使用和维护活跃度都保持可见。",
+        releaseAmount: 4_000,
+        state: "upcoming" as const,
+        signal: "排队中",
+      },
+    ],
+  },
   agent: {
     eyebrow: "AI Prior 解释",
     recommendation: "最多只放行 350 SCOUT 到 YES",
