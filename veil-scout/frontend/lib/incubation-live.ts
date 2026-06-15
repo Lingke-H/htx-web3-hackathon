@@ -4,11 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import {
   createPublicClient,
   custom,
+  http,
   isAddress,
   type Address,
 } from "viem";
 import type { DemoContent, Locale, StepState } from "@/lib/demo-data";
-import { getInjectedProvider } from "@/lib/wallet-state";
+import { chainNameFromId, getInjectedProvider } from "@/lib/wallet-state";
 
 const incubationVaultAbi = [
   {
@@ -73,6 +74,7 @@ type IncubationPanelState = {
 
 const configuredVaultAddress = process.env.NEXT_PUBLIC_INCUBATION_VAULT_ADDRESS;
 const configuredVaultId = process.env.NEXT_PUBLIC_INCUBATION_VAULT_ID;
+const configuredRpcUrl = process.env.NEXT_PUBLIC_RPC_URL?.trim();
 const configuredChainId = process.env.NEXT_PUBLIC_INCUBATION_CHAIN_ID;
 const configuredProjectName = process.env.NEXT_PUBLIC_INCUBATION_SELECTED_PROJECT;
 
@@ -226,7 +228,11 @@ export function useIncubationPanelState(
   const provider = getInjectedProvider();
   const vaultId = Number.parseInt(configuredVaultId ?? "", 10);
   const expectedChainId = parseConfiguredChainId();
-  const currentKey = `${configuredVaultAddress ?? "none"}:${configuredVaultId ?? "none"}:${expectedChainId ?? "none"}:${chainId ?? "none"}:${chainName ?? "none"}:${address ?? "none"}:${locale}`;
+  const sourceKind = configuredRpcUrl ? "rpc" : provider ? "provider" : "none";
+  const currentKey =
+    sourceKind === "rpc"
+      ? `${sourceKind}:${configuredRpcUrl}:${configuredVaultAddress ?? "none"}:${configuredVaultId ?? "none"}:${expectedChainId ?? "none"}:${locale}`
+      : `${sourceKind}:${configuredVaultAddress ?? "none"}:${configuredVaultId ?? "none"}:${expectedChainId ?? "none"}:${chainId ?? "none"}:${chainName ?? "none"}:${address ?? "none"}:${locale}`;
   const fallbackReason = useCallback(
     (reason: string) => withFallbackReason(fallback, locale, reason),
     [fallback, locale],
@@ -242,32 +248,55 @@ export function useIncubationPanelState(
               "the configured incubation chain id is invalid.",
               "配置的 incubation chain id 无效。",
             )
-          : expectedChainId !== null && chainId !== null && chainId !== expectedChainId
+          : !configuredRpcUrl && expectedChainId !== null && chainId !== null && chainId !== expectedChainId
             ? localizedMessage(
                 locale,
                 `the connected chain (${chainId}) does not match the configured incubation chain (${expectedChainId}).`,
                 `当前连接链 (${chainId}) 与配置的 incubation chain (${expectedChainId}) 不一致。`,
               )
-        : !provider
+        : !configuredRpcUrl && !provider
           ? localizedMessage(
               locale,
-              "no injected wallet/provider is available in this browser session.",
-              "当前浏览器会话里没有可用的钱包或 provider。",
+              "no configured read-only RPC or injected provider is available in this browser session.",
+              "当前浏览器会话里没有可用的只读 RPC 或注入式 provider。",
             )
           : null;
 
   useEffect(() => {
-    if (preconditionFailure || !provider) {
+    if (preconditionFailure) {
       return;
     }
 
     let cancelled = false;
 
     const load = async () => {
+      const usingRpc = Boolean(configuredRpcUrl);
       try {
         const client = createPublicClient({
-          transport: custom(provider),
+          transport: usingRpc ? http(configuredRpcUrl) : custom(provider!),
         });
+        const actualChainId = await client.getChainId();
+
+        if (expectedChainId !== null && actualChainId !== expectedChainId) {
+          throw new Error(
+            usingRpc
+              ? localizedMessage(
+                  locale,
+                  `the configured read-only RPC chain (${actualChainId}) does not match the configured incubation chain (${expectedChainId}).`,
+                  `配置的只读 RPC 链 (${actualChainId}) 与配置的 incubation chain (${expectedChainId}) 不一致。`,
+                )
+              : localizedMessage(
+                  locale,
+                  `the connected chain (${actualChainId}) does not match the configured incubation chain (${expectedChainId}).`,
+                  `当前连接链 (${actualChainId}) 与配置的 incubation chain (${expectedChainId}) 不一致。`,
+                ),
+          );
+        }
+
+        const resolvedChainId = expectedChainId ?? actualChainId;
+        const resolvedChainName = usingRpc
+          ? chainNameFromId(resolvedChainId)
+          : chainName ?? chainNameFromId(resolvedChainId);
 
         const [vault, remainingBudget] = await Promise.all([
           client.readContract({
@@ -327,8 +356,12 @@ export function useIncubationPanelState(
           milestoneCount,
           note: localizedMessage(
             locale,
-            `Reading IncubationVault ${configuredVaultAddress} / vault ${vaultId} on ${chainName ?? "the connected network"}${expectedChainId !== null ? ` (expected chain ${expectedChainId})` : ""}. Sponsor units remain demo-grade, and an authorized reviewer must still submit releaseMilestone.`,
-            `当前读取的是 ${chainName ?? "已连接网络"}${expectedChainId !== null ? `（期望链 ${expectedChainId}）` : ""} 上的 IncubationVault ${configuredVaultAddress} / vault ${vaultId}。Sponsor 单位仍然是 demo 记账，最终仍需授权 reviewer 提交 releaseMilestone。`,
+            usingRpc
+              ? `Reading IncubationVault ${configuredVaultAddress} / vault ${vaultId} through the configured read-only RPC on ${resolvedChainName ?? "the configured network"} (chain ${resolvedChainId}). Sponsor units remain demo-grade, and an authorized reviewer must still submit releaseMilestone.`
+              : `Reading IncubationVault ${configuredVaultAddress} / vault ${vaultId} on ${resolvedChainName ?? "the connected network"}${expectedChainId !== null ? ` (expected chain ${expectedChainId})` : ""}. Sponsor units remain demo-grade, and an authorized reviewer must still submit releaseMilestone.`,
+            usingRpc
+              ? `当前通过配置的只读 RPC 在 ${resolvedChainName ?? "目标网络"}（链 ${resolvedChainId}）上读取 IncubationVault ${configuredVaultAddress} / vault ${vaultId}。Sponsor 单位仍然是 demo 记账，最终仍需授权 reviewer 提交 releaseMilestone。`
+              : `当前读取的是 ${resolvedChainName ?? "已连接网络"}${expectedChainId !== null ? `（期望链 ${expectedChainId}）` : ""} 上的 IncubationVault ${configuredVaultAddress} / vault ${vaultId}。Sponsor 单位仍然是 demo 记账，最终仍需授权 reviewer 提交 releaseMilestone。`,
           ),
           milestones,
         };
@@ -343,17 +376,22 @@ export function useIncubationPanelState(
             },
           });
         }
-      } catch {
+      } catch (error) {
+        const readFailure = usingRpc
+          ? localizedMessage(
+              locale,
+              "the configured read-only RPC was unavailable or the configured vault could not be read.",
+              "配置的只读 RPC 不可用，或配置的 vault 无法读取。",
+            )
+          : localizedMessage(
+              locale,
+              "the injected provider was unavailable or the configured vault could not be read.",
+              "注入式 provider 不可用，或配置的 vault 无法读取。",
+            );
         if (!cancelled) {
           setLiveState({
             key: currentKey,
-            value: fallbackReason(
-              localizedMessage(
-                locale,
-                "the network was unavailable or the configured vault could not be read.",
-                "网络不可用，或配置的 vault 无法读取。",
-              ),
-            ),
+            value: fallbackReason(error instanceof Error && error.message ? error.message : readFailure),
           });
         }
       }
@@ -376,6 +414,7 @@ export function useIncubationPanelState(
     provider,
     vaultId,
     expectedChainId,
+    sourceKind,
   ]);
 
   if (preconditionFailure) {

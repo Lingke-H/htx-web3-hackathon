@@ -50,7 +50,7 @@ export function getInjectedProvider() {
   return provider ?? null;
 }
 
-function chainNameFromId(chainId: number | null) {
+export function chainNameFromId(chainId: number | null) {
   if (chainId === null) {
     return null;
   }

@@ -1,6 +1,6 @@
 # Post-Hackathon Incubation Demo Runbook
 
-This runbook covers the narrow P0.6 demo loop:
+This runbook covers the narrow P0.8 demo loop:
 
 `project selected -> vault created -> milestone recorded -> oracle report generated -> reviewer releases milestone -> frontend displays updated vault state`
 
@@ -28,6 +28,23 @@ This script:
 - manually releases the pending milestone with the authorized reviewer account
 - asserts the post-release state
 - shuts Anvil down even when the test fails
+
+## One-Command Live Judge Demo
+
+Run the full local judge demo with one command:
+
+```bash
+bash veil-scout/scripts/run-live-demo.sh
+```
+
+This script:
+
+- starts a temporary local Anvil node
+- deploys Track A and seeds the incubation vault
+- configures the frontend with a temporary read-only RPC setup
+- starts the frontend without touching `.env.local`
+- prints the frontend URL, chain ID, vault address, and vault ID
+- keeps Anvil and the frontend alive until interrupted
 
 ## 1. Deploy Track A
 
@@ -148,6 +165,7 @@ Set the frontend config from `incubation-demo.json`:
 
 ```bash
 cd veil-scout/frontend
+export NEXT_PUBLIC_RPC_URL=http://127.0.0.1:8545
 export NEXT_PUBLIC_INCUBATION_VAULT_ADDRESS=<INCUBATION_VAULT_ADDRESS>
 export NEXT_PUBLIC_INCUBATION_VAULT_ID=0
 export NEXT_PUBLIC_INCUBATION_CHAIN_ID=31337
@@ -155,24 +173,24 @@ export NEXT_PUBLIC_INCUBATION_SELECTED_PROJECT=AgentPay
 npm run dev
 ```
 
-When an injected wallet/provider is available and the configured vault can be read, the incubation panel shows:
+When the configured read-only RPC or an injected provider can read the configured vault, the incubation panel shows:
 
 - live contract data
 - vault status
 - total / released / refunded / remaining sponsor budget
 - milestone timeline and release state
 
-If the address is missing, the provider is unavailable, or the network cannot be read, the UI falls back to clearly labeled demo data.
+If the address is missing, the live read path is misconfigured, or the network cannot be read, the UI falls back to clearly labeled demo data.
 
 ## Troubleshooting
 
 ### Wrong network
 
-If `NEXT_PUBLIC_INCUBATION_CHAIN_ID` is set and the connected wallet is on a different chain, the incubation panel falls back to demo data and explains the mismatch. This is expected behavior.
+If `NEXT_PUBLIC_INCUBATION_CHAIN_ID` is set and the configured read-only RPC or connected wallet is on a different chain, the incubation panel falls back to demo data and explains the mismatch. This is expected behavior.
 
 ### Missing provider
 
-If no injected wallet/provider is available in the browser session, the incubation panel remains in `Demo fallback data` mode. Live reads do not require a write path, but they still require a readable provider.
+If `NEXT_PUBLIC_RPC_URL` is configured, the incubation panel can still show `Live contract data` without any wallet or injected provider. If there is no configured read-only RPC and no injected provider is available, the panel remains in `Demo fallback data` mode.
 
 ### Stale deployment files
 

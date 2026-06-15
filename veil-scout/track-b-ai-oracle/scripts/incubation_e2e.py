@@ -94,12 +94,16 @@ def write_project_config(track_b_data_dir: Path, incubation_vault_address: str) 
 
 def run_assess_release(args: argparse.Namespace, project_path: Path, vault_id: int, milestone_id: int) -> Path:
     env = os.environ.copy()
+    pythonpath_entries = [str(args.track_b_dir / "src")]
+    if env.get("PYTHONPATH"):
+        pythonpath_entries.append(env["PYTHONPATH"])
     env.update({
         "RPC_URL": args.rpc_url,
         "CHAIN_ID": "31337",
         "DEPLOYMENT_JSON": str(args.deployment_json),
         "CONTRACTS_DIR": str(args.track_a_dir),
         "TRACK_B_DATA_DIR": str(args.track_b_data_dir),
+        "PYTHONPATH": os.pathsep.join(pythonpath_entries),
     })
     subprocess.run(
         [

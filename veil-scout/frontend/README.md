@@ -28,16 +28,17 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 ## Optional Live Incubation Read
 
-The incubation panel can read a seeded `IncubationVault` when an injected wallet/provider is available:
+The incubation panel can read a seeded `IncubationVault` through a configured read-only RPC without requiring a wallet connection. If no read-only RPC is configured, it falls back to an injected provider, then to clearly labeled demo data:
 
 ```bash
+export NEXT_PUBLIC_RPC_URL=http://127.0.0.1:8545
 export NEXT_PUBLIC_INCUBATION_VAULT_ADDRESS=0x...
 export NEXT_PUBLIC_INCUBATION_VAULT_ID=0
 export NEXT_PUBLIC_INCUBATION_CHAIN_ID=31337
 export NEXT_PUBLIC_INCUBATION_SELECTED_PROJECT=AgentPay
 ```
 
-Without a configured address, without a provider, or when the network read fails, the panel falls back to clearly labeled demo data.
+Without a configured vault, with a chain mismatch, or when the live read path fails, the panel falls back to clearly labeled demo data.
 
 ## Notes
 
