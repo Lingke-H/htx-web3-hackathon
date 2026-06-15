@@ -122,6 +122,7 @@ ABI files are exported to `abi/` after `forge build`:
 ```bash
 mkdir -p abi
 jq '.abi' out/CreditLedger.sol/CreditLedger.json > abi/CreditLedger.json
+jq '.abi' out/IncubationVault.sol/IncubationVault.json > abi/IncubationVault.json
 jq '.abi' out/Market.sol/Market.json > abi/Market.json
 # ... etc
 ```

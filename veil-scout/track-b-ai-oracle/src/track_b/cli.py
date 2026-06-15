@@ -53,15 +53,28 @@ def create_market(
 def verify(
     project: Path = typer.Option(..., exists=True, readable=True),
     market_id: int = typer.Option(..., min=0),
+    milestone_id: str | None = typer.Option(None),
+    recommended_release_amount: int | None = typer.Option(None, min=0),
 ) -> Path:
     settings = load_settings()
     config = load_project(project)
     chain = _chain(settings, require_private_key=False) if config.verification_rule.type == "contract_event_count" else None
-    report = verify_project(config, market_id, GitHubClient(settings.github_token), chain)
+    report = verify_project(
+        config,
+        market_id,
+        GitHubClient(settings.github_token),
+        chain,
+        milestone_id=milestone_id,
+        recommended_release_amount=recommended_release_amount,
+    )
     output = verification_path(settings.data_dir, config.slug, market_id)
     write_json(output, report)
     console.print(f"[green]Verification written:[/green] {output}")
-    console.print(f"passed={report.passed} observed={report.observedMetrics}")
+    console.print(
+        "passed="
+        f"{report.passed} observed={report.observedMetrics} milestoneId={report.milestoneId} "
+        f"release={report.recommendedReleaseAmount} pause={report.pauseRecommendation}"
+    )
     return output
 
 

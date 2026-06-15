@@ -68,10 +68,6 @@ function actionTone(state: ActionState) {
   }[state];
 }
 
-function parsePercent(value: string) {
-  return Number.parseInt(value.replace(/[^0-9]/g, ""), 10) || 0;
-}
-
 const seededWallet = "0x72c14b0a6f884ef564ab91dc1f928c09b7d9f11e";
 
 export function DemoPreview() {
@@ -181,6 +177,10 @@ export function DemoPreview() {
     value: Number.parseInt(market.exposure, 10) || 0,
     tone: market.tone,
   }));
+  const incubation = content.incubation;
+  const formatBudget = (value: number) =>
+    new Intl.NumberFormat(locale === "zh" ? "zh-CN" : "en-US").format(value);
+  const incubationReleaseProgress = Math.round((incubation.releasedBudget / incubation.totalBudget) * 100);
   const metricTraces = [
     [46, 50, 56, 61, 66, 70],
     [20, 26, 31, 29, 34, 37],
@@ -734,7 +734,7 @@ export function DemoPreview() {
                           key={item.label}
                           className={cn(
                             item.tone === "accent" && "bg-cyan-400",
-                            item.tone === "neutral" && "bg-blue-400/70",
+                            item.tone === "positive" && "bg-emerald-400/80",
                             item.tone === "caution" && "bg-amber-400/80",
                           )}
                           style={{ width: `${(item.value / totalExposure) * 100}%` }}
@@ -907,6 +907,118 @@ export function DemoPreview() {
                   <div className="flex items-start gap-3">
                     <ShieldAlert className="mt-0.5 h-4 w-4 text-amber-300" />
                     <p className="text-sm leading-7 text-amber-50">{content.metricCards[1].decision}</p>
+                  </div>
+                </div>
+              </div>
+            </HologramCard>
+          </div>
+        </section>
+
+        <section className="grid gap-5 xl:grid-cols-[minmax(0,1.18fr)_360px]" id="incubation">
+          <div className="space-y-5">
+            <HologramCard className="rounded-[32px] p-5">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="terminal-label">{incubation.eyebrow}</p>
+                  <h3 className="mt-3 text-[1.14rem] font-semibold text-white">{incubation.title}</h3>
+                </div>
+                <p className="max-w-2xl text-sm leading-7 text-slate-300">{incubation.description}</p>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="space-y-4">
+                  <div className="terminal-console rounded-[24px] p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="terminal-label">{incubation.selectedProjectLabel}</p>
+                        <p className="mt-3 text-[1.12rem] font-semibold text-white">{incubation.selectedProject}</p>
+                      </div>
+                      <Badge className={cn("px-2 py-0.5", toneClass(incubation.statusTone))} variant="outline">
+                        {incubation.statusLabel}
+                      </Badge>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Badge className="border-cyan-300/30 bg-cyan-400/12 text-cyan-50" variant="outline">
+                        {incubation.executionBadge}
+                      </Badge>
+                      <Badge className="border-white/12 bg-white/[0.04] text-slate-100" variant="outline">
+                        P0.5 / Mock Incubation
+                      </Badge>
+                    </div>
+
+                    <Progress
+                      className="mt-5 h-2 bg-white/[0.06] [&_[data-slot=progress-indicator]]:bg-emerald-400"
+                      value={incubationReleaseProgress}
+                    />
+                    <p className="mt-3 text-sm leading-7 text-slate-300">{incubation.note}</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {incubation.milestones.map((milestone) => (
+                      <div key={milestone.id} className="data-row rounded-[22px] px-4 py-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className={cn("status-led h-2.5 w-2.5", toneDotClass(milestone.state === "complete" ? "positive" : milestone.state === "current" ? "accent" : "neutral"))} />
+                              <p className="terminal-label">
+                                {milestone.id} / {milestone.title}
+                              </p>
+                            </div>
+                            <p className="mt-3 text-sm leading-7 text-slate-300">{milestone.summary}</p>
+                          </div>
+                          <div className="min-w-[132px] text-right">
+                            <Badge
+                              className={cn(
+                                "px-2 py-0.5",
+                                toneClass(
+                                  milestone.state === "complete"
+                                    ? "positive"
+                                    : milestone.state === "current"
+                                      ? "accent"
+                                      : "neutral",
+                                ),
+                              )}
+                              variant="outline"
+                            >
+                              {milestone.signal}
+                            </Badge>
+                            <p className="mt-3 font-mono text-sm text-cyan-100">
+                              {formatBudget(milestone.releaseAmount)} {locale === "zh" ? "赞助单位" : "sponsor units"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="data-row rounded-[24px] px-4 py-4">
+                    <p className="terminal-label">{incubation.totalBudgetLabel}</p>
+                    <p className="mt-3 font-mono text-[1.42rem] font-semibold tracking-[0.04em] text-cyan-100">
+                      {formatBudget(incubation.totalBudget)} {locale === "zh" ? "赞助单位" : "sponsor units"}
+                    </p>
+                  </div>
+
+                  <div className="data-row rounded-[24px] px-4 py-4">
+                    <p className="terminal-label">{incubation.releasedBudgetLabel}</p>
+                    <p className="mt-3 font-mono text-[1.42rem] font-semibold tracking-[0.04em] text-emerald-100">
+                      {formatBudget(incubation.releasedBudget)} {locale === "zh" ? "赞助单位" : "sponsor units"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{incubationReleaseProgress}% released</p>
+                  </div>
+
+                  <div className="data-row rounded-[24px] px-4 py-4">
+                    <p className="terminal-label">{incubation.remainingBudgetLabel}</p>
+                    <p className="mt-3 font-mono text-[1.42rem] font-semibold tracking-[0.04em] text-amber-100">
+                      {formatBudget(incubation.remainingBudget)} {locale === "zh" ? "赞助单位" : "sponsor units"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {locale === "zh"
+                        ? "如果执行停摆，剩余额度可以暂停并退回 sponsor。"
+                        : "If execution stalls, the remaining tranche can pause and return to the sponsor."}
+                    </p>
                   </div>
                 </div>
               </div>

@@ -2,6 +2,13 @@
 
 **Timeline:** 60 days
 
+Scope note for the current repo state:
+
+- treat this file as the broader historical roadmap
+- the current merge-ready scope boundary is defined by `docs/p0/specs/post-hackathon-incubation-p0.md`
+- P0 remains credit-based and demo-grade
+- P0.5 adds milestone-based post-hackathon incubation, not live streaming finance
+
 ---
 
 ## Recommended Tech Stack

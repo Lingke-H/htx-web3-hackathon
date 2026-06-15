@@ -8,7 +8,7 @@ Pitch decks, demos, and hype are easy to game. Execution quality is discovered t
 
 ## Slide 2: Mechanism
 
-Veil Scout turns project discovery into a credit-based judgment tournament.
+Veil Scout turns project discovery into a credit-based scout market for builder discovery.
 
 Scouts receive non-transferable seasonal credits and predict whether projects will hit clear, verifiable milestones.
 
@@ -33,11 +33,14 @@ AI is the first analyst, not the judge.
 4. Buy YES or NO.
 5. Oracle verifies GitHub/on-chain data.
 6. Market settles and leaderboard updates.
+7. Selected teams move into post-hackathon incubation with milestone-based sponsor budget release.
 
 ## Slide 5: Roadmap And HTX Fit
 
-P0 proves the loop with trusted settlement and static report distribution.
+P0 proves builder discovery with trusted settlement and static report distribution.
 
-P1 decentralizes settlement with optimistic oracle/challenge period, publishes reports to IPFS/API, and connects reward pools to HTX DAO / ecosystem incentives.
+P0.5 adds a lightweight post-hackathon incubation layer: proof-of-execution guides fixed sponsor budget releases without turning the system into a real-money prediction market.
 
-Veil Scout can become HTX DAO builder-discovery infrastructure for hackathons, grants, incubators, launchpads, and ecosystem due diligence.
+P1 decentralizes settlement with optimistic oracle/challenge period, publishes reports to IPFS/API, and expands incubation controls.
+
+Veil Scout can become HTX DAO builder-discovery and post-hackathon incubation infrastructure for hackathons, grants, incubators, launchpads, and ecosystem due diligence.
