@@ -11,6 +11,24 @@ This runbook covers the narrow P0.6 demo loop:
 - milestone release is authorized and manual
 - no automatic investment, token custody, or per-second streaming
 
+## One-Command Smoke Test
+
+Run the full local demo loop with one command:
+
+```bash
+bash veil-scout/scripts/run-incubation-e2e.sh
+```
+
+This script:
+
+- starts a temporary local Anvil node
+- deploys Track A
+- seeds the incubation vault
+- runs a deterministic Track B advisory report
+- manually releases the pending milestone with the authorized reviewer account
+- asserts the post-release state
+- shuts Anvil down even when the test fails
+
 ## 1. Deploy Track A
 
 Start a local Anvil node, then deploy the existing P0 contracts plus `IncubationVault`.
@@ -43,6 +61,17 @@ This writes `incubation-demo.json` with:
 
 The seed script refuses to create a second demo vault on the same deployment, so reruns do not silently create duplicate state.
 
+Expected seeded state before the second release:
+
+- `nextVaultId = 1`
+- `vaultId = 0`
+- vault status = `ACTIVE`
+- milestone count = `3`
+- milestone `0` released = `true`
+- milestone `1` released = `false`
+- released budget = `4,000`
+- remaining budget = `8,000`
+
 ## 3. Generate the Track B Milestone Report
 
 Create an advisory release report for the next pending milestone.
@@ -68,6 +97,15 @@ The report includes:
 - a reviewer command preview for `releaseMilestone`
 
 Track B is advisory only. It does not submit the on-chain release.
+
+Expected advisory report checks:
+
+- `passed = true`
+- `recommendedReleaseAmount = 4000`
+- `vaultId = 0`
+- `milestoneId = 1`
+- trust boundary text explicitly says the report is advisory only
+- no state changes happen before the reviewer release transaction
 
 ## 4. Review the Recommendation
 
@@ -97,6 +135,13 @@ cast send <INCUBATION_VAULT_ADDRESS> \
 
 This remains an authorized demo action. It is not automatic funding.
 
+Expected state after reviewer release:
+
+- milestone `1` released = `true`
+- released budget = `8,000`
+- remaining budget = `4,000`
+- vault status remains `ACTIVE`
+
 ## 6. Refresh the Frontend
 
 Set the frontend config from `incubation-demo.json`:
@@ -105,6 +150,7 @@ Set the frontend config from `incubation-demo.json`:
 cd veil-scout/frontend
 export NEXT_PUBLIC_INCUBATION_VAULT_ADDRESS=<INCUBATION_VAULT_ADDRESS>
 export NEXT_PUBLIC_INCUBATION_VAULT_ID=0
+export NEXT_PUBLIC_INCUBATION_CHAIN_ID=31337
 export NEXT_PUBLIC_INCUBATION_SELECTED_PROJECT=AgentPay
 npm run dev
 ```
@@ -117,3 +163,26 @@ When an injected wallet/provider is available and the configured vault can be re
 - milestone timeline and release state
 
 If the address is missing, the provider is unavailable, or the network cannot be read, the UI falls back to clearly labeled demo data.
+
+## Troubleshooting
+
+### Wrong network
+
+If `NEXT_PUBLIC_INCUBATION_CHAIN_ID` is set and the connected wallet is on a different chain, the incubation panel falls back to demo data and explains the mismatch. This is expected behavior.
+
+### Missing provider
+
+If no injected wallet/provider is available in the browser session, the incubation panel remains in `Demo fallback data` mode. Live reads do not require a write path, but they still require a readable provider.
+
+### Stale deployment files
+
+The smoke test removes stale `deployment.json` and `incubation-demo.json` before each run. If you are running steps manually, remove both files before redeploying:
+
+```bash
+rm -f veil-scout/track-a-contracts/deployment.json
+rm -f veil-scout/track-a-contracts/incubation-demo.json
+```
+
+### Missing local Anvil
+
+If `anvil` is not installed on the current machine, the local smoke test cannot run. In that case the GitHub Actions `incubation-e2e` job becomes the source of truth for the automated end-to-end check.

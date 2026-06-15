@@ -73,7 +73,7 @@ const seededWallet = "0x72c14b0a6f884ef564ab91dc1f928c09b7d9f11e";
 
 export function DemoPreview() {
   const { content, locale } = useAppState();
-  const { address, balance, chainName, error, isConnected, isConnecting } = useWalletState();
+  const { address, balance, chainId, chainName, error, isConnected, isConnecting } = useWalletState();
   const prefersReducedMotion = useReducedMotion();
   const [orderSize, setOrderSize] = useState("350");
   const [reviewWallet, setReviewWallet] = useState<string | null>(null);
@@ -178,7 +178,13 @@ export function DemoPreview() {
     value: Number.parseInt(market.exposure, 10) || 0,
     tone: market.tone,
   }));
-  const incubationState = useIncubationPanelState(locale, content.incubation, chainName);
+  const incubationState = useIncubationPanelState(
+    locale,
+    content.incubation,
+    chainId,
+    chainName,
+    address,
+  );
   const incubation = incubationState.incubation;
   const formatBudget = (value: number) =>
     new Intl.NumberFormat(locale === "zh" ? "zh-CN" : "en-US").format(value);

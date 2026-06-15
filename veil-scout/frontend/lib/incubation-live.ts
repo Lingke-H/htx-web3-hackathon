@@ -73,10 +73,28 @@ type IncubationPanelState = {
 
 const configuredVaultAddress = process.env.NEXT_PUBLIC_INCUBATION_VAULT_ADDRESS;
 const configuredVaultId = process.env.NEXT_PUBLIC_INCUBATION_VAULT_ID;
+const configuredChainId = process.env.NEXT_PUBLIC_INCUBATION_CHAIN_ID;
 const configuredProjectName = process.env.NEXT_PUBLIC_INCUBATION_SELECTED_PROJECT;
 
 function localizedMessage(locale: Locale, english: string, chinese: string) {
   return locale === "zh" ? chinese : english;
+}
+
+function parseConfiguredChainId() {
+  if (!configuredChainId) {
+    return null;
+  }
+
+  const parsed = Number.parseInt(configuredChainId, 10);
+  return Number.isNaN(parsed) || parsed < 0 ? null : parsed;
+}
+
+function safeNumber(value: bigint | number, label: string) {
+  const numericValue = typeof value === "bigint" ? Number(value) : value;
+  if (!Number.isFinite(numericValue) || !Number.isSafeInteger(numericValue) || numericValue < 0) {
+    throw new Error(`${label} cannot be represented safely in the frontend`);
+  }
+  return numericValue;
 }
 
 function withFallbackReason(
@@ -197,7 +215,9 @@ function statusPresentation(locale: Locale, status: number) {
 export function useIncubationPanelState(
   locale: Locale,
   fallback: IncubationContent,
+  chainId: number | null,
   chainName: string | null,
+  address: string | null,
 ): IncubationPanelState {
   const [liveState, setLiveState] = useState<{
     key: string;
@@ -205,7 +225,8 @@ export function useIncubationPanelState(
   } | null>(null);
   const provider = getInjectedProvider();
   const vaultId = Number.parseInt(configuredVaultId ?? "", 10);
-  const currentKey = `${configuredVaultAddress ?? "none"}:${configuredVaultId ?? "none"}:${chainName ?? "none"}:${locale}`;
+  const expectedChainId = parseConfiguredChainId();
+  const currentKey = `${configuredVaultAddress ?? "none"}:${configuredVaultId ?? "none"}:${expectedChainId ?? "none"}:${chainId ?? "none"}:${chainName ?? "none"}:${address ?? "none"}:${locale}`;
   const fallbackReason = useCallback(
     (reason: string) => withFallbackReason(fallback, locale, reason),
     [fallback, locale],
@@ -215,6 +236,18 @@ export function useIncubationPanelState(
       ? localizedMessage(locale, "no IncubationVault address is configured.", "没有配置 IncubationVault 地址。")
       : Number.isNaN(vaultId) || vaultId < 0
         ? localizedMessage(locale, "no seeded vault id is configured.", "没有配置 seeded vault id。")
+        : configuredChainId && expectedChainId === null
+          ? localizedMessage(
+              locale,
+              "the configured incubation chain id is invalid.",
+              "配置的 incubation chain id 无效。",
+            )
+          : expectedChainId !== null && chainId !== null && chainId !== expectedChainId
+            ? localizedMessage(
+                locale,
+                `the connected chain (${chainId}) does not match the configured incubation chain (${expectedChainId}).`,
+                `当前连接链 (${chainId}) 与配置的 incubation chain (${expectedChainId}) 不一致。`,
+              )
         : !provider
           ? localizedMessage(
               locale,
@@ -251,8 +284,8 @@ export function useIncubationPanelState(
           }),
         ]);
 
-        const milestoneCount = Number(vault.milestoneCount);
-        const status = statusPresentation(locale, Number(vault.status));
+        const milestoneCount = safeNumber(vault.milestoneCount, "milestoneCount");
+        const status = statusPresentation(locale, safeNumber(vault.status, "status"));
         const milestoneTuples = await Promise.all(
           Array.from({ length: milestoneCount }, (_, index) =>
             client.readContract({
@@ -275,7 +308,7 @@ export function useIncubationPanelState(
             id: `M${index + 1}`,
             title: milestone.label || `Milestone ${index + 1}`,
             summary: presentation.summary,
-            releaseAmount: Number(milestone.releaseAmount),
+            releaseAmount: safeNumber(milestone.releaseAmount, `milestone ${index + 1} releaseAmount`),
             state: presentation.state,
             signal: presentation.signal,
           };
@@ -287,15 +320,15 @@ export function useIncubationPanelState(
           executionBadge: status.executionBadge,
           statusLabel: status.label,
           statusTone: status.tone,
-          totalBudget: Number(vault.totalBudget),
-          releasedBudget: Number(vault.releasedBudget),
-          refundedBudget: Number(vault.refundedBudget),
-          remainingBudget: Number(remainingBudget),
+          totalBudget: safeNumber(vault.totalBudget, "totalBudget"),
+          releasedBudget: safeNumber(vault.releasedBudget, "releasedBudget"),
+          refundedBudget: safeNumber(vault.refundedBudget, "refundedBudget"),
+          remainingBudget: safeNumber(remainingBudget, "remainingBudget"),
           milestoneCount,
           note: localizedMessage(
             locale,
-            `Reading IncubationVault ${configuredVaultAddress} / vault ${vaultId} on ${chainName ?? "the connected network"}. Sponsor units remain demo-grade, and an authorized reviewer must still submit releaseMilestone.`,
-            `当前读取的是 ${chainName ?? "已连接网络"} 上的 IncubationVault ${configuredVaultAddress} / vault ${vaultId}。Sponsor 单位仍然是 demo 记账，最终仍需授权 reviewer 提交 releaseMilestone。`,
+            `Reading IncubationVault ${configuredVaultAddress} / vault ${vaultId} on ${chainName ?? "the connected network"}${expectedChainId !== null ? ` (expected chain ${expectedChainId})` : ""}. Sponsor units remain demo-grade, and an authorized reviewer must still submit releaseMilestone.`,
+            `当前读取的是 ${chainName ?? "已连接网络"}${expectedChainId !== null ? `（期望链 ${expectedChainId}）` : ""} 上的 IncubationVault ${configuredVaultAddress} / vault ${vaultId}。Sponsor 单位仍然是 demo 记账，最终仍需授权 reviewer 提交 releaseMilestone。`,
           ),
           milestones,
         };
@@ -331,7 +364,19 @@ export function useIncubationPanelState(
     return () => {
       cancelled = true;
     };
-  }, [chainName, currentKey, fallback, fallbackReason, locale, preconditionFailure, provider, vaultId]);
+  }, [
+    address,
+    chainId,
+    chainName,
+    currentKey,
+    fallback,
+    fallbackReason,
+    locale,
+    preconditionFailure,
+    provider,
+    vaultId,
+    expectedChainId,
+  ]);
 
   if (preconditionFailure) {
     return fallbackReason(preconditionFailure);

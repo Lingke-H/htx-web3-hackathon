@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  foundry:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: veil-scout/track-a-contracts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: 1.6.0
+      - name: Foundry format
+        run: forge fmt --check
+      - name: Foundry tests
+        run: forge test
+
+  python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: veil-scout/track-b-ai-oracle
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            veil-scout/track-b-ai-oracle/requirements.txt
+            veil-scout/track-b-ai-oracle/pyproject.toml
+      - name: Install Track B dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r requirements.txt
+          python -m pip install -e . --no-build-isolation
+      - name: Python compile
+        run: python -m py_compile src/track_b/*.py
+      - name: Pytest
+        run: pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: veil-scout/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: veil-scout/frontend/package-lock.json
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Frontend lint
+        run: npm run lint
+      - name: Frontend build
+        run: npm run build
+
+  incubation-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: 1.6.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            veil-scout/track-b-ai-oracle/requirements.txt
+            veil-scout/track-b-ai-oracle/pyproject.toml
+      - name: Install Track B dependencies
+        working-directory: veil-scout/track-b-ai-oracle
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r requirements.txt
+          python -m pip install -e . --no-build-isolation
+      - name: Run incubation e2e smoke test
+        run: bash veil-scout/scripts/run-incubation-e2e.sh
