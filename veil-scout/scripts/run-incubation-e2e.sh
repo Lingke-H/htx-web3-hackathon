@@ -11,6 +11,10 @@ ANVIL_PORT="${ANVIL_PORT:-8545}"
 PRIVATE_KEY="${PRIVATE_KEY:-0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80}"
 ORACLE_PRIVATE_KEY="${ORACLE_PRIVATE_KEY:-$PRIVATE_KEY}"
 CHAIN_ID="${CHAIN_ID:-31337}"
+LOOPBACK_NO_PROXY="${LOOPBACK_NO_PROXY:-127.0.0.1,localhost}"
+
+export NO_PROXY="${NO_PROXY:+$NO_PROXY,}$LOOPBACK_NO_PROXY"
+export no_proxy="${no_proxy:+$no_proxy,}$LOOPBACK_NO_PROXY"
 
 if ! command -v forge >/dev/null 2>&1; then
   echo "forge is required to run the incubation e2e smoke test." >&2
@@ -51,7 +55,14 @@ trap cleanup EXIT INT TERM
 
 rm -f "$TRACK_A_DIR/deployment.json" "$TRACK_A_DIR/incubation-demo.json"
 
-anvil --host "$ANVIL_HOST" --port "$ANVIL_PORT" --chain-id "$CHAIN_ID" --accounts 10 >"$ANVIL_LOG" 2>&1 &
+anvil \
+  --host "$ANVIL_HOST" \
+  --port "$ANVIL_PORT" \
+  --chain-id "$CHAIN_ID" \
+  --accounts 10 \
+  --block-base-fee-per-gas 0 \
+  --gas-price 0 \
+  --disable-min-priority-fee >"$ANVIL_LOG" 2>&1 &
 ANVIL_PID=$!
 
 for _ in $(seq 1 60); do
@@ -73,8 +84,8 @@ fi
 
 (
   cd "$TRACK_A_DIR"
-  forge script script/DeployP0.s.sol:DeployP0 --rpc-url "$RPC_URL" --broadcast
-  forge script script/SeedIncubationDemo.s.sol:SeedIncubationDemo --rpc-url "$RPC_URL" --broadcast
+  forge script script/DeployP0.s.sol:DeployP0 --rpc-url "$RPC_URL" --broadcast --slow
+  forge script script/SeedIncubationDemo.s.sol:SeedIncubationDemo --rpc-url "$RPC_URL" --broadcast --slow
 )
 
 TRACK_B_DATA_DIR="$TMP_DIR/track-b-data" \

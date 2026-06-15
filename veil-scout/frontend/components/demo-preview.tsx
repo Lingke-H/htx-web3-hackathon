@@ -752,8 +752,8 @@ export function DemoPreview() {
                     </div>
 
                     <div className="mt-4 space-y-2">
-                      {exposureSeries.map((item) => (
-                        <div key={item.label} className="flex items-center justify-between gap-3 border-b border-white/6 pb-2 last:border-b-0 last:pb-0">
+                      {exposureSeries.map((item, index) => (
+                        <div key={`${item.label}-${item.tone}-${item.value}-${index}`} className="flex items-center justify-between gap-3 border-b border-white/6 pb-2 last:border-b-0 last:pb-0">
                           <div className="flex items-center gap-2">
                             <span className={cn("status-led h-2.5 w-2.5", toneDotClass(item.tone))} />
                             <span className="text-sm text-slate-300">{item.label}</span>

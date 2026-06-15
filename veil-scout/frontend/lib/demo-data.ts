@@ -295,15 +295,15 @@ const englishContent = {
     refundedBudgetLabel: "Refunded budget",
     remainingBudgetLabel: "Remaining budget",
     milestoneCountLabel: "Milestone count",
-    liveDataLabel: "P0.6 / Live contract data",
-    fallbackDataLabel: "P0.6 / Demo fallback data",
+    liveDataLabel: "P0.8 / Live contract data",
+    fallbackDataLabel: "P0.8 / Demo fallback data",
     totalBudget: 12_000,
     releasedBudget: 4_000,
     refundedBudget: 0,
     remainingBudget: 8_000,
     milestoneCount: 3,
     note:
-      "P0.6 keeps sponsor budget accounting separate from scout credits. Releases are fixed milestone tranches, not per-second streaming, and still require an authorized reviewer.",
+      "P0.8 keeps sponsor budget accounting separate from scout credits. Releases are fixed milestone tranches, not per-second streaming, and still require an authorized reviewer.",
     milestones: [
       {
         id: "M1",
@@ -765,15 +765,15 @@ const chineseContent: typeof englishContent = {
     refundedBudgetLabel: "已退款预算",
     remainingBudgetLabel: "剩余预算",
     milestoneCountLabel: "里程碑数量",
-    liveDataLabel: "P0.6 / 实时合约数据",
-    fallbackDataLabel: "P0.6 / Demo 回退数据",
+    liveDataLabel: "P0.8 / 实时合约数据",
+    fallbackDataLabel: "P0.8 / Demo 回退数据",
     totalBudget: 12_000,
     releasedBudget: 4_000,
     refundedBudget: 0,
     remainingBudget: 8_000,
     milestoneCount: 3,
     note:
-      "P0.6 会把 sponsor 预算记账与 scout credits 分开。预算释放走固定里程碑 tranche，不做按秒 streaming，并且仍需授权 reviewer 决定是否提交释放。",
+      "P0.8 会把 sponsor 预算记账与 scout credits 分开。预算释放走固定里程碑 tranche，不做按秒 streaming，并且仍需授权 reviewer 决定是否提交释放。",
     milestones: [
       {
         id: "M1",
