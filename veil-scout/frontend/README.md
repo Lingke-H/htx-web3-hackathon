@@ -33,6 +33,7 @@ The incubation panel can read a seeded `IncubationVault` when an injected wallet
 ```bash
 export NEXT_PUBLIC_INCUBATION_VAULT_ADDRESS=0x...
 export NEXT_PUBLIC_INCUBATION_VAULT_ID=0
+export NEXT_PUBLIC_INCUBATION_CHAIN_ID=31337
 export NEXT_PUBLIC_INCUBATION_SELECTED_PROJECT=AgentPay
 ```
 

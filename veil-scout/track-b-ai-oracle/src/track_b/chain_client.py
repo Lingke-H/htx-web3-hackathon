@@ -133,7 +133,7 @@ class ChainClient:
     def release_milestone_command_preview(
         self, vault_id: int, milestone_id: int, execution_summary: str
     ) -> str:
-        quoted_summary = shlex.quote(execution_summary)
+        quoted_summary = shlex.quote(" ".join(execution_summary.split()))
         return (
             f'cast send {self.deployment["incubationVault"]} '
             f'"releaseMilestone(uint256,uint256,string)" {vault_id} {milestone_id} '

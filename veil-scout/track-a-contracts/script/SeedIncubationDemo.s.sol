@@ -8,6 +8,8 @@ import { IncubationVault } from "../src/IncubationVault.sol";
 contract SeedIncubationDemo is Script {
     uint256 private constant DEFAULT_ANVIL_PRIVATE_KEY =
         0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+    uint256 private constant FIXED_MILESTONE_RELEASE_AMOUNT = 4_000;
+    uint256 private constant FIXED_MILESTONE_COUNT = 3;
 
     struct Deployment {
         IncubationVault incubationVault;
@@ -35,26 +37,31 @@ contract SeedIncubationDemo is Script {
         uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", DEFAULT_ANVIL_PRIVATE_KEY);
         address sponsor = vm.envOr("INCUBATION_SPONSOR", address(0x5150));
         address projectOwner = vm.envOr("INCUBATION_PROJECT_OWNER", address(0xA613));
-        uint256 totalBudget = vm.envOr("INCUBATION_TOTAL_BUDGET", uint256(12_000));
         string memory projectSlug = vm.envOr("INCUBATION_PROJECT_SLUG", string("agentpay"));
 
         DemoMilestone[3] memory milestones = [
             DemoMilestone({
                 label: "Contributor PR tranche",
-                releaseAmount: 4_000,
+                releaseAmount: FIXED_MILESTONE_RELEASE_AMOUNT,
                 metadataURI: "ipfs://incubation/agentpay/m1"
             }),
             DemoMilestone({
                 label: "API integration tranche",
-                releaseAmount: 4_000,
+                releaseAmount: FIXED_MILESTONE_RELEASE_AMOUNT,
                 metadataURI: "ipfs://incubation/agentpay/m2"
             }),
             DemoMilestone({
                 label: "Usage retention tranche",
-                releaseAmount: 4_000,
+                releaseAmount: FIXED_MILESTONE_RELEASE_AMOUNT,
                 metadataURI: "ipfs://incubation/agentpay/m3"
             })
         ];
+        uint256 seededMilestoneBudget = _milestoneBudget(milestones);
+        uint256 totalBudget = vm.envOr("INCUBATION_TOTAL_BUDGET", seededMilestoneBudget);
+        require(
+            totalBudget == seededMilestoneBudget,
+            "INCUBATION_TOTAL_BUDGET must equal seeded milestone total"
+        );
 
         vm.startBroadcast(deployerPrivateKey);
         vaultId = deployment.incubationVault
@@ -87,6 +94,10 @@ contract SeedIncubationDemo is Script {
         console2.log("incubationVault:", address(deployment.incubationVault));
         console2.log("vaultId:", vaultId);
         console2.log("milestone_0 released, milestone_1 pending, vault remains ACTIVE.");
+    }
+
+    function demoMilestoneBudget() external pure returns (uint256) {
+        return FIXED_MILESTONE_RELEASE_AMOUNT * FIXED_MILESTONE_COUNT;
     }
 
     function _loadDeployment() private view returns (Deployment memory deployment) {
@@ -170,5 +181,15 @@ contract SeedIncubationDemo is Script {
             "\n",
             "    }"
         );
+    }
+
+    function _milestoneBudget(DemoMilestone[3] memory milestones)
+        private
+        pure
+        returns (uint256 total)
+    {
+        for (uint256 milestoneId = 0; milestoneId < milestones.length; milestoneId++) {
+            total += milestones[milestoneId].releaseAmount;
+        }
     }
 }
