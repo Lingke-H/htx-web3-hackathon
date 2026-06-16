@@ -105,7 +105,7 @@ export function AppShell({
   ];
 
   return (
-    <div className="cyber-grid mx-auto grid min-h-screen max-w-[1700px] gap-4 px-3 py-3 xl:grid-cols-[280px_minmax(0,1fr)] xl:px-5 xl:py-5">
+    <div className="cyber-grid mx-auto grid min-h-screen max-w-[1700px] overflow-x-hidden gap-4 px-3 py-3 xl:grid-cols-[280px_minmax(0,1fr)] xl:px-5 xl:py-5">
       <aside className="hidden xl:block">
         <div className="sticky top-4 space-y-4">
           <HologramCard className="rounded-[30px] p-5">

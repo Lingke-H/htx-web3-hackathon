@@ -660,7 +660,7 @@ export function DemoPreview() {
         </motion.section>
 
         <section className="grid gap-5 xl:grid-cols-[minmax(0,1.18fr)_360px]" id="markets">
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-5">
             <HologramCard className="rounded-[32px] p-5">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
@@ -671,7 +671,7 @@ export function DemoPreview() {
               </div>
 
               <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="space-y-4">
+                <div className="min-w-0 space-y-4">
                   <div className="terminal-console rounded-[24px] p-4">
                     <SignalStrip
                       items={[
@@ -688,7 +688,7 @@ export function DemoPreview() {
                     </p>
                   </div>
 
-                  <div className="overflow-hidden rounded-[24px] border border-white/8 bg-slate-950/50">
+                  <div className="max-w-full overflow-x-auto rounded-[24px] border border-white/8 bg-slate-950/50">
                     <Table>
                       <TableHeader>
                         <TableRow className="border-white/8 hover:bg-transparent">
@@ -728,7 +728,7 @@ export function DemoPreview() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="min-w-0 space-y-4">
                   <div className="data-row rounded-[24px] px-4 py-4">
                     <div className="flex items-center justify-between gap-3">
                       <p className="terminal-label">{copy.exposureSplit}</p>
@@ -788,7 +788,7 @@ export function DemoPreview() {
             </HologramCard>
           </div>
 
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-5">
             <HologramCard className="rounded-[32px] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -924,7 +924,7 @@ export function DemoPreview() {
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[minmax(0,1.18fr)_360px]" id="incubation">
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-5">
             <HologramCard className="rounded-[32px] p-5">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
@@ -935,7 +935,7 @@ export function DemoPreview() {
               </div>
 
               <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="space-y-4">
+                <div className="min-w-0 space-y-4">
                   <div className="terminal-console rounded-[24px] p-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
@@ -1005,7 +1005,7 @@ export function DemoPreview() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="min-w-0 space-y-4">
                   <div className="data-row rounded-[24px] px-4 py-4">
                     <p className="terminal-label">{incubation.totalBudgetLabel}</p>
                     <p className="mt-3 font-mono text-[1.42rem] font-semibold tracking-[0.04em] text-cyan-100">
@@ -1051,7 +1051,7 @@ export function DemoPreview() {
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[minmax(0,1.18fr)_360px]" id="approvals">
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-5">
             <HologramCard className="rounded-[32px] p-5">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
@@ -1075,7 +1075,7 @@ export function DemoPreview() {
             </HologramCard>
           </div>
 
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-5">
             <HologramCard className="rounded-[32px] p-5">
               <p className="terminal-label">{content.agent.eyebrow}</p>
               <h3 className="mt-3 text-[1.08rem] font-semibold text-white">{content.agent.recommendation}</h3>
