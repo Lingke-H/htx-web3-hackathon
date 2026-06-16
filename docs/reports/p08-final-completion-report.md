@@ -217,6 +217,13 @@ Final submission-freeze run:
 - fallback verification with intentionally broken RPC config showed `Demo fallback data`
 - no claim is made that fallback data is live state
 
+## Deployment Note
+
+- Vercel project: `frontend`
+- production URL: <https://frontend-six-sigma-mw8xaa81il.vercel.app>
+- deployment commit: `2682d31cb3e786d676d01227c8696b8e4d923cae`
+- online mode: `Demo fallback data`
+
 ## Fresh-Clone Verification Results
 
 Fresh-clone verification was executed from a standalone copy outside the active worktree to simulate a teammate or judge setup path.
@@ -315,6 +322,8 @@ Fallback triggers include:
 - final freeze merge commit: `940f22d476e0efe1096421b296597181fbf26424`
 - release tag: `v0.8.0-demo`
 - release URL: <https://github.com/Lingke-H/htx-web3-hackathon/releases/tag/v0.8.0-demo>
+- patch release tag: `v0.8.1-demo`
+- patch release URL: <https://github.com/Lingke-H/htx-web3-hackathon/releases/tag/v0.8.1-demo>
 
 ## Exact One-Command Demo Command
 

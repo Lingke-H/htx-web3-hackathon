@@ -68,6 +68,12 @@ Expected ready banner:
 - vault ID `0`
 - initial state: `ACTIVE`, 3 milestones, `4,000` released, `8,000` remaining
 
+## Public Demo
+
+- Vercel production URL: [https://frontend-six-sigma-mw8xaa81il.vercel.app](https://frontend-six-sigma-mw8xaa81il.vercel.app)
+- Online mode: `P0.8 / Demo fallback data`
+- Note: the public deployment is a read-only presentation build. The local demo remains the environment that shows live Anvil-backed incubation contract state.
+
 ## What Is Implemented
 
 - credit-based scout markets with non-transferable season credits
