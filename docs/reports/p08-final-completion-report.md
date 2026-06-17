@@ -221,7 +221,7 @@ Final submission-freeze run:
 
 - Vercel project: `frontend`
 - production URL: <https://frontend-six-sigma-mw8xaa81il.vercel.app>
-- deployment commit: `902dfc12f38a2bd8136c16c15138f182ab5c3fd0`
+- deployment commit: `902dfc14bbe0c0a596c1ab8b67411c642684ab68`
 - online mode: `Demo fallback data`
 
 ## Fresh-Clone Verification Results
