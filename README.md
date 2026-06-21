@@ -1,193 +1,132 @@
-# HTX Web3 Hackathon
-
 # Veil Scout
 
-Veil Scout discovers real builders through a credit-based scout market, then guides milestone-based sponsor budget release through verified execution.
+> Most hackathons stop at ranking. Veil Scout turns ranking into continuous builder discovery and milestone-based incubation.
 
-## The Problem
+**HTX Web3 Hackathon · AI x Web3**
 
-Hackathon projects usually stop at ranking. Judges can identify strong teams, but prize distribution is still mostly one-shot, and promising projects often disappear before sponsors see real follow-through.
+[Public presentation demo](https://frontend-six-sigma-mw8xaa81il.vercel.app) · [Final submission](docs/submission/final-submission.md) · [Demo evidence](docs/submission/demo-evidence.md) · [Architecture](docs/pitch/demo-diagrams.md)
 
-## The Product
-
-Veil Scout keeps the hackathon discovery loop intact, then adds a separate post-hackathon incubation lane:
-
-- a **credit-based scout market** discovers which teams look real
-- a **proof-of-execution oracle flow** reviews whether those teams keep shipping
-- a **milestone-based incubation vault** releases fixed sponsor budget tranches only after verified execution
-
-This release stays explicitly demo-grade:
-
-- no real-money prediction market
-- no token custody
-- no automatic investment
-- no per-second streaming
-- no governance or dispute layer
-
-## Two-Layer Architecture
-
-### 1. Scout Discovery Layer
-
-- `Season.sol`: season windows and admin lifecycle
-- `CreditLedger.sol`: non-transferable scout credits
-- `Market.sol` + `MarketFactory.sol`: binary milestone markets and odds
-- `Leaderboard.sol`: scout reputation and ranking
-
-This layer answers: *who looks like a real builder before the hackathon ends?*
-
-### 2. Post-Hackathon Incubation Layer
-
-- Track B AI + Oracle: proof-of-execution reports and milestone release assessment
-- `IncubationVault.sol`: fixed-tranche sponsor accounting, pause, and refund
-- frontend incubation panel: live read from configured RPC, or honest labeled fallback
-
-This layer answers: *should sponsor budget keep moving after the hackathon?*
-
-## Six-Step Lifecycle
-
-1. **Discover**: scouts use non-transferable credits to back or reject project outcomes.
-2. **Select**: judges or sponsors choose a project after scout-market signal appears.
-3. **Verify**: Track B checks proof-of-execution evidence such as merged PRs or contract activity.
-4. **Release**: an authorized reviewer releases the next fixed milestone tranche from `IncubationVault`.
-5. **Pause or Refund**: if execution stalls or evidence fails review, the vault can pause and remaining sponsor units can be refunded.
-6. **Show the Story**: the frontend presents live or clearly labeled fallback incubation state for judges.
-
-## One-Command Demo
-
-After installing the prerequisites below, start the local judge demo from the repository root:
+> **Demo status:** the public site is a labeled, read-only presentation build with seeded market data. For live local contract deployment and incubation reads, run the reproducible Anvil demo below.
 
 ```bash
 bash veil-scout/scripts/run-live-demo.sh
 ```
 
-Expected ready banner:
+## The Product in One Lifecycle
 
-- Frontend URL
-- chain ID `31337`
-- seeded `IncubationVault` address
-- vault ID `0`
-- initial state: `ACTIVE`, 3 milestones, `4,000` released, `8,000` remaining
+1. **Discover** — AI turns public project evidence into a structured AI Prior.
+2. **Compare** — scouts allocate non-transferable credits and form Crowd Odds.
+3. **Verify** — a trusted P0 oracle checks explicit GitHub or on-chain criteria.
+4. **Settle** — contracts settle the market and update scout reputation.
+5. **Incubate** — selected builders enter a separate milestone lane.
+6. **Release** — an authorized reviewer releases a fixed sponsor-unit tranche after evidence review.
 
-## Public Demo
+The discovery market generates signal. The incubation vault creates follow-through.
 
-- Vercel production URL: [https://frontend-six-sigma-mw8xaa81il.vercel.app](https://frontend-six-sigma-mw8xaa81il.vercel.app)
-- Online mode: `P0.8 / Demo fallback data`
-- Note: the public deployment is a read-only presentation build. The local demo remains the environment that shows live Anvil-backed incubation contract state.
+## Status at a Glance
 
-## What Is Implemented
+| Status | Scope |
+| --- | --- |
+| **Implemented** | contracts, non-transferable credits, Crowd Odds, AI/verification reports, trusted settlement, reputation, incubation accounting, bilingual UI, CI, local E2E |
+| **Demo-grade** | trusted oracle/reviewer roles, seeded market rows, sponsor-unit accounting, public fallback data |
+| **Roadmap** | optimistic oracle/challenges, production custody, public testnet, HTX APIs, B.AI, `$HTX`, permissionless disputes |
 
-- credit-based scout markets with non-transferable season credits
-- on-chain odds derived from scout exposure
-- Track B AI Prior and trusted settlement verification flow
-- post-hackathon `IncubationVault` with milestone release, pause, and refund
-- automated local incubation E2E smoke test
-- read-only incubation live reads without requiring a browser wallet
-- English / Chinese judge-facing demo UI
+Sponsor units do not custody or transfer tokens. AI and oracle reports are advisory. There is no AMM, LP exposure, automatic investment, governance, or real-money prediction market.
 
-## What Is Still Demo-Grade
+## Architecture
 
-- sponsor accounting uses demo sponsor units, not real funds
-- AI reports and milestone assessments are advisory
-- an authorized reviewer still submits release transactions manually
-- built-in fallback data remains part of the judge demo story
-- no permissionless dispute resolution, governance, streaming, or custody
-
-## Fresh-Clone Setup
-
-Release baseline:
-
-- Node `24.16.0`
-- Python `3.11+`
-- Foundry installed through `foundryup`
-
-Suggested setup from a clean clone:
-
-```bash
-# Node 24
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-nvm install
-nvm use
-
-# Foundry
-curl -L https://foundry.paradigm.xyz | bash
-export PATH="$HOME/.foundry/bin:$PATH"
-foundryup
-
-# Python 3.11+
-brew install python@3.13
-export PATH="/opt/homebrew/opt/python@3.13/libexec/bin:$PATH"
-python3 --version
-
-# Frontend
-cd veil-scout/frontend
-npm ci
-cd ../..
-
-# Track B
-cd veil-scout/track-b-ai-oracle
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-pip install -e . --no-build-isolation
-cd ../..
+```mermaid
+flowchart LR
+    E["Project evidence"] --> A["AI Prior"]
+    A --> C["Scout credits / Crowd Odds"]
+    C --> V["Trusted P0 verification"]
+    V --> S["On-chain settlement"]
+    S --> R["Scout reputation"]
+    S --> I["Milestone incubation"]
+    I --> U["Authorized sponsor-unit release"]
 ```
 
-Verification commands:
+- **Track A — Solidity / Foundry:** seasons, credits, markets, settlement, leaderboard, incubation accounting
+- **Track B — Python:** AI report, GitHub/on-chain verifier, advisory release assessment, evidence artifacts
+- **Track C — Next.js:** bilingual judge console, wallet state, explicit live/fallback labels, end-to-end story
+
+See the [detailed architecture and trust-boundary diagrams](docs/pitch/demo-diagrams.md).
+
+## Why It Fits HTX
+
+Veil Scout gives an ecosystem program operator a concrete funnel: discover credible builders during a hackathon, preserve evidence and scout signal, then monitor execution after the event. It can support hackathons, grants, incubators, launchpads, and ecosystem due diligence.
+
+P0.8 claims no current HTX API, B.AI, or `$HTX` integration. See the [resource disclosure](docs/submission/ecosystem-resource-disclosure.md).
+
+## Local Demo
+
+Prerequisites:
+
+- Node `24.16.0` (see `.nvmrc`)
+- Python `3.11+`
+- Foundry with `forge` and `anvil`
+- frontend dependencies installed with `npm ci`
+- Track B installed in a virtual environment
+
+Run from the repository root:
 
 ```bash
+bash veil-scout/scripts/run-live-demo.sh
+```
+
+Expected ready state:
+
+- chain ID `31337`
+- generated `IncubationVault` address
+- vault ID `0`, status `ACTIVE`
+- 3 milestones
+- `4,000` sponsor units released and `8,000` remaining
+
+## Verification
+
+```bash
+bash veil-scout/scripts/check-submission-package.sh
+
 cd veil-scout/track-a-contracts
 forge fmt --check
 forge test
-cd ../..
 
-cd veil-scout/track-b-ai-oracle
-source .venv/bin/activate
+cd ../track-b-ai-oracle
 python -m py_compile src/track_b/*.py scripts/incubation_e2e.py
 pytest
-cd ../..
 
-cd veil-scout/frontend
+cd ../frontend
+npm run test:copy
 npm run lint
 npm run build
-cd ../..
 
+cd ../..
 bash veil-scout/scripts/run-incubation-e2e.sh
-bash veil-scout/scripts/run-live-demo.sh
 ```
 
-## Repository Layout
+CI runs the same submission, contract, Python, frontend, and E2E lanes.
+
+## Repository Map
 
 ```text
-.
-├── docs/
-│   ├── p0/specs/                  # P0 through P0.8 mechanism and demo docs
-│   ├── submission/                # submission package, judge Q&A, rehearsal checklist
-│   └── reports/                   # final completion report
-└── veil-scout/
-    ├── track-a-contracts/         # contracts, scripts, ABI, tests
-    ├── track-b-ai-oracle/         # AI + oracle CLI, verifier logic, tests
-    ├── frontend/                  # judge-facing Next.js demo
-    └── scripts/                   # local E2E and one-command live demo
+docs/
+  submission/                 canonical submission, evidence, disclosure, checklist
+  pitch/                      narrative and architecture diagrams
+  p0/specs/                   supporting mechanism and demo specifications
+veil-scout/
+  track-a-contracts/          Solidity contracts and Foundry tests
+  track-b-ai-oracle/          AI/oracle CLI, reports, and pytest suite
+  frontend/                   bilingual Next.js judge console
+  scripts/                    verification, E2E, and one-command demo
 ```
 
-## Documentation
+## Judge Links
 
-- [P0.8 Judge Demo Guide](docs/p0/specs/p08-judge-demo-guide.md)
-- [Incubation Demo Runbook](docs/p0/specs/post-hackathon-incubation-demo-runbook.md)
-- [Submission Package](docs/submission/p08-submission-package.md)
+- [Final submission](docs/submission/final-submission.md)
+- [Demo and verification evidence](docs/submission/demo-evidence.md)
+- [HTX ecosystem resource disclosure](docs/submission/ecosystem-resource-disclosure.md)
+- [Final submission checklist](docs/submission/final-submission-checklist.md)
 - [Judge Q&A](docs/submission/p08-judge-qa.md)
-- [Demo Rehearsal Checklist](docs/submission/p08-demo-rehearsal-checklist.md)
-- [Final Completion Report](docs/reports/p08-final-completion-report.md)
+- [Pitch narrative](docs/pitch/pitch-narrative.md)
 
-## Local State Notes
-
-Ignored local state includes:
-
-- `.env` files
-- virtual environments
-- frontend dependency caches and build outputs
-- generated deployment and seed files
-- temporary screenshots, logs, and machine-specific files
+Licensed under the [MIT License](LICENSE).

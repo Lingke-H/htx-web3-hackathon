@@ -84,7 +84,7 @@ export function DemoPreview() {
     locale === "zh"
       ? {
           discoveryConsole: "AI 辅助 Scout 发现控制台",
-          demoMarker: "P0 Demo / Mock Data",
+          demoMarker: "Demo 级 / 种子市场数据",
           aiPrior: "AI 先验",
           crowdOdds: "群体赔率",
           oracleSettlement: "预言机结算",
@@ -121,7 +121,7 @@ export function DemoPreview() {
         }
       : {
           discoveryConsole: "AI-assisted scout discovery console",
-          demoMarker: "P0 Demo / Mock Data",
+          demoMarker: "Demo-grade / Seeded market data",
           aiPrior: "AI Prior",
           crowdOdds: "Crowd odds",
           oracleSettlement: "Oracle settlement",
@@ -246,7 +246,7 @@ export function DemoPreview() {
         detail:
           locale === "zh"
             ? "连接钱包后，这个工单才能真正提交到审批队列。"
-            : "Connect a wallet before this ticket can move into the live approval queue.",
+            : "Connect a wallet before this ticket can move into the manual approval queue.",
         tone: "neutral",
       }
     : orderError || walletError
@@ -360,6 +360,17 @@ export function DemoPreview() {
                       <span className="glow-text">{content.hero.title}</span>
                     </h2>
                     <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300">{content.hero.description}</p>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-3">
+                    {content.shell.statusLegend.map((status) => (
+                      <div key={status.label} className="data-row rounded-[20px] px-4 py-4">
+                        <Badge className={cn("px-2 py-0.5", toneClass(status.tone))} variant="outline">
+                          {status.label}
+                        </Badge>
+                        <p className="mt-3 text-sm leading-6 text-slate-300">{status.detail}</p>
+                      </div>
+                    ))}
                   </div>
 
                   <SignalStrip items={heroSignals} />

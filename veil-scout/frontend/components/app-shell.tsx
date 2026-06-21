@@ -52,18 +52,19 @@ export function AppShell({
           nodeStatus: "节点状态",
           routeHealth: "执行链路",
           routeHealthBody:
-            "实时钱包状态会同步进入审批链路，种子市场与 mock 数据会持续标识，避免评委误把 demo 数值当成真实盘口。",
-          oracleOnline: "预言机在线",
-          marketSeeded: "MARKET_012 已注种",
-          manualLane: "人工审批通道",
+            "连接后的钱包状态会进入审批链路；种子市场与回退数据始终保留标签，避免把 demo 数值当成真实盘口。",
+          oracleOnline: "P0 可信预言机边界",
+          marketSeeded: "种子市场数据",
+          manualLane: "授权人工审批",
           walletAware: hasProvider ? "钱包感知" : "未检测到浏览器钱包",
           walletState: isConnected ? "钱包已连接" : "等待钱包连接",
-          routeState: chainName ?? "HTX Demo Net",
-          routeNote: "Risk rails armed",
-          readiness: "Oracle 在线",
+          routeState: chainName ?? "本地 Anvil / 钱包未连接",
+          routeNote: "可信 P0 角色",
+          readiness: "预言机边界",
           credits: "Scout 积分活跃",
-          demoNet: "HTX Demo Net",
-          manualReview: "人工复核常开",
+          demoNet: "执行环境",
+          manualReview: "释放权限",
+          sourceLabeled: "数据源已标识",
           mobileNavTitle: "Mission Control",
           mobileNavBody: "切换分区时保留同一套钱包、审批和双语状态。",
         }
@@ -74,18 +75,19 @@ export function AppShell({
           nodeStatus: "Node status",
           routeHealth: "Route health",
           routeHealthBody:
-            "Live wallet state stays stitched into approvals, while seeded market numbers remain visibly labeled so judges can separate mock data from execution-ready rails.",
-          oracleOnline: "Oracle online",
-          marketSeeded: "MARKET_012 seeded",
-          manualLane: "Manual approval lane",
+            "Connected wallet state feeds the approval view, while seeded market values stay labeled so judges can separate fallback data from contract-backed reads.",
+          oracleOnline: "Trusted P0 oracle boundary",
+          marketSeeded: "Seeded market data",
+          manualLane: "Authorized human approval",
           walletAware: hasProvider ? "Wallet aware" : "No browser wallet",
           walletState: isConnected ? "Wallet connected" : "Awaiting wallet link",
-          routeState: chainName ?? "HTX Demo Net",
-          routeNote: "Risk rails armed",
-          readiness: "Oracle online",
+          routeState: chainName ?? "Local Anvil / wallet not connected",
+          routeNote: "Trusted P0 roles",
+          readiness: "Oracle boundary",
           credits: "Scout credits active",
-          demoNet: "HTX Demo Net",
-          manualReview: "Manual review armed",
+          demoNet: "Execution environment",
+          manualReview: "Release authority",
+          sourceLabeled: "source labeled",
           mobileNavTitle: "Mission Control",
           mobileNavBody: "Navigation preserves the same wallet, approval, and locale state across sections.",
         };
@@ -98,7 +100,7 @@ export function AppShell({
   ];
 
   const sidebarStatus = [
-    { label: copy.readiness, value: "AI Oracle Node", tone: "positive" as const },
+    { label: copy.readiness, value: "Trusted P0 role", tone: "caution" as const },
     { label: copy.credits, value: "7,540 SCOUT", tone: "accent" as const },
     { label: copy.demoNet, value: copy.routeState, tone: "neutral" as const },
     { label: copy.manualReview, value: copy.routeNote, tone: "caution" as const },
@@ -197,7 +199,7 @@ export function AppShell({
             <div className="flex items-center justify-between gap-3">
               <p className="terminal-label text-slate-300">{copy.routeHealth}</p>
               <Badge className="border-emerald-300/32 bg-emerald-400/12 text-emerald-50" variant="outline">
-                live
+                {copy.sourceLabeled}
               </Badge>
             </div>
             <p className="mt-4 text-sm leading-7 text-slate-300">{copy.routeHealthBody}</p>

@@ -15,6 +15,9 @@ flowchart LR
     G --> H["Market.settle(marketId, passed)"]
     H --> I["Credits redistributed to correct scouts"]
     I --> J["Leaderboard reputation updates"]
+    J --> K["Sponsor selects builder for incubation"]
+    K --> L["Oracle assesses new milestone evidence"]
+    L --> M["Authorized reviewer releases fixed sponsor units"]
 ```
 
 ## Trust Boundary
@@ -34,6 +37,7 @@ flowchart TB
         G["Market.getYesOdds"]
         H["Market.settle"]
         I["Leaderboard"]
+        J["IncubationVault milestone accounting"]
     end
 
     A --> F
@@ -43,10 +47,13 @@ flowchart TB
     E --> F
     F --> G
     H --> I
+    D --> R["Authorized reviewer: manual P0 release boundary"]
+    R --> J
 
     T["Trust Boundary: P0 trusted oracle, P1 optimistic oracle roadmap"] -.-> C
+    U["Accounting Boundary: sponsor units, no token custody"] -.-> J
 ```
 
 ## Judge-Facing Explanation
 
-Veil Scout does not hide centralization in P0. The oracle runner is trusted for the demo, but every settlement is paired with a human-readable verification report. The upgrade path is to move from trusted oracle to optimistic oracle, challenge period, and report commitments.
+Veil Scout does not hide centralization in P0. The oracle runner is trusted for the demo, but every settlement is paired with a human-readable verification report. Incubation uses a separate authorized reviewer and demo sponsor-unit accounting; it does not custody tokens. The upgrade path is to move from trusted oracle to optimistic oracle, challenge period, report commitments, and an independently audited asset-flow design.

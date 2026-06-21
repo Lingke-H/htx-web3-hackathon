@@ -1,5 +1,7 @@
 # Veil Scout Submission Package
 
+> Historical P0.8 package. Use the [canonical final submission](final-submission.md), [demo evidence](demo-evidence.md), and [resource disclosure](ecosystem-resource-disclosure.md) for current judge-facing claims.
+
 ## Project Name
 
 Veil Scout

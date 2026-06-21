@@ -1,5 +1,11 @@
 # Veil Scout Judge Q&A
 
+> Current answers align with the [canonical final submission](final-submission.md) and [resource disclosure](ecosystem-resource-disclosure.md).
+
+## What is the single product story?
+
+Most hackathons stop at ranking. Veil Scout turns that ranking signal into continuous builder discovery and milestone-based incubation: AI Prior → Crowd Odds → verification → settlement and reputation → incubation → authorized sponsor-unit release.
+
 ## Why use a scout market?
 
 Because hackathons already produce opinions, but those opinions are usually informal. The scout market turns that discovery process into a structured credit-based signal before the event ends.
@@ -10,7 +16,11 @@ To keep P0 focused on reputation and discovery instead of speculation, liquidity
 
 ## Is this gambling?
 
-Not in the intended P0 design. It is a demo-grade, credit-based evaluation loop using non-transferable accounting units, not a real-money betting product.
+Not in the intended P0 design. It is a demo-grade evaluation loop using non-transferable accounting units, not money or a tradable token. There is no AMM, liquidity provider, deposit, withdrawal, or real-money payout path.
+
+## Are incubation sponsor units real tokens?
+
+No. Sponsor units are fixed demo accounting units inside `IncubationVault`. P0.8 does not custody, transfer, stream, or invest sponsor assets.
 
 ## Who authorizes budget release?
 
@@ -39,6 +49,14 @@ P0.8 does not claim a complete anti-fraud system. It uses explicit verification 
 ## How does HTX or a sponsor benefit?
 
 HTX or a sponsor gets a cleaner funnel: discovery signal during the hackathon, then a structured follow-through lane after the hackathon, without committing to full production finance rails on day one.
+
+## Which HTX resources are integrated today?
+
+None are claimed. P0.8 does not integrate HTX APIs, B.AI compute, the `$HTX` token, or an HTX-branded network. The interface identifies the hackathon context; local live execution uses Anvil chain ID `31337`. Possible resource integrations are roadmap only.
+
+## Why is the oracle still trusted?
+
+Trusted settlement is the explicit P0 boundary that keeps the demo small and verifiable. Reports expose criteria, observations, rationale, and limitations so reviewers can inspect the decision. P1 proposes report commitments, a challenge period, and an optimistic-oracle path.
 
 ## What would productionization require?
 

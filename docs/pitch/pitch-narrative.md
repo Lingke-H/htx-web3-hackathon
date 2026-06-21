@@ -1,46 +1,42 @@
-# Pitch Narrative
+# Three-Minute Pitch Narrative
 
-## Slide 1: Problem
+## 0:00–0:25 — Problem
 
-Hackathons and Web3 ecosystems receive many polished submissions, but it is hard to identify which projects can actually deliver.
+Most hackathons stop at ranking. A polished demo can win attention for one day, but sponsors still struggle to identify which builders keep shipping after the event.
 
-Pitch decks, demos, and hype are easy to game. Execution quality is discovered too late.
+Veil Scout turns ranking into continuous builder discovery and milestone-based incubation.
 
-## Slide 2: Mechanism
+## 0:25–0:50 — One Lifecycle
 
-Veil Scout turns project discovery into a credit-based scout market for builder discovery.
+AI creates a structured AI Prior from project evidence. Human scouts agree or disagree using non-transferable credits, producing Crowd Odds. A trusted P0 oracle verifies execution, contracts settle the result and update scout reputation, and selected builders continue into a separate milestone-incubation lane.
 
-Scouts receive non-transferable seasonal credits and predict whether projects will hit clear, verifiable milestones.
+The market discovers signal. The incubation vault creates follow-through.
 
-Human scouts can correct, confirm, or challenge the AI Prior with their own credit allocation.
+## 0:50–2:05 — Demo First
 
-Correct scouts gain credits and on-chain leaderboard reputation. Wrong scouts lose influence.
+1. Show the **AI Prior**: probability, confidence, evidence, risks, and limitations.
+2. Compare it with **Crowd Odds** to show where humans confirm or challenge the AI.
+3. Open a settled example and show the predefined verification criterion, observed metrics, data-source status, rationale, and limitations.
+4. Show settlement and the persistent scout-reputation outcome.
+5. Move to incubation: the selected builder has three milestones, one released tranche, one under review, and one locked.
+6. Point to the data-source badge: public mode is seeded fallback; local Anvil mode reads the incubation contract.
 
-## Slide 3: AI / Web3 Split
+## 2:05–2:30 — Honest Boundaries
 
-AI is the first analyst, not the judge.
+- credits are non-transferable accounting units, not money;
+- sponsor units model a budget but do not custody tokens;
+- AI and oracle reports are advisory;
+- trusted authorized roles settle and release in P0;
+- there is no AMM, automatic investment, governance, or permissionless dispute system.
 
-- AI produces an **AI Prior** report.
-- Scouts agree or disagree with credits.
-- Smart contracts lock credits, settle positions, and update on-chain reputation.
-- Track B oracle verifies data and calls settlement with a visible P0 trusted-oracle boundary.
+This is deliberate: the demo proves the lifecycle without pretending the prototype already has production finance or decentralized-oracle infrastructure.
 
-## Slide 4: Demo Flow
+## 2:30–2:50 — Why HTX Cares
 
-1. Claim Scout Credits.
-2. Open a project market.
-3. Compare AI Prior with Crowd Odds.
-4. Buy YES or NO.
-5. Oracle verifies GitHub/on-chain data.
-6. Market settles and leaderboard updates.
-7. Selected teams move into post-hackathon incubation with milestone-based sponsor budget release.
+HTX can use this pattern as a builder pipeline: discover credible teams during a program, preserve transparent evidence and scout signal, then monitor real follow-through after demo day. The same workflow can serve hackathons, grants, incubators, and launchpads.
 
-## Slide 5: Roadmap And HTX Fit
+P0.8 does not claim HTX API, B.AI, or `$HTX` integration. Those are roadmap options only after validation.
 
-P0 proves builder discovery with trusted settlement and static report distribution.
+## 2:50–3:00 — Close
 
-P0.5 adds a lightweight post-hackathon incubation layer: proof-of-execution guides fixed sponsor budget releases without turning the system into a real-money prediction market.
-
-P1 decentralizes settlement with optimistic oracle/challenge period, publishes reports to IPFS/API, and expands incubation controls.
-
-Veil Scout can become HTX DAO builder-discovery and post-hackathon incubation infrastructure for hackathons, grants, incubators, launchpads, and ecosystem due diligence.
+Veil Scout does not ask sponsors to trust one AI score or one judge vote. It combines AI evidence, human conviction, transparent settlement, and milestone follow-through—so the ecosystem can find real builders and keep supporting the ones who continue to ship.
