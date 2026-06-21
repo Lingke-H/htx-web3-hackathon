@@ -25,6 +25,7 @@ class ContractSource(BaseModel):
 class VerificationRule(BaseModel):
     type: RuleType
     target: int = Field(ge=0)
+    lookbackDays: int = Field(default=30, ge=1, le=365)
     contract: ContractSource | None = None
     github_repo: str | None = None
 
@@ -74,6 +75,8 @@ class GitHubSnapshot(BaseModel):
     latest_release: str | None = None
     latest_tag: str | None = None
     last_activity_at: str | None = None
+    window_start: str | None = None
+    window_end: str | None = None
     data_unavailable: bool = False
     error: str | None = None
 
@@ -105,6 +108,11 @@ class AIReport(BaseModel):
     dataSourcesUsed: list[str] = Field(default_factory=list)
     suggestedQuestion: str
     fallbackUsed: bool = False
+    provider: str
+    model: str
+    promptVersion: str
+    inputDigest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    evidenceDigest: str = Field(pattern=r"^[0-9a-f]{64}$")
     error: str | None = None
     evidence: EvidenceBundle | None = None
 

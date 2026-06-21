@@ -3,8 +3,20 @@ from track_b.verifier import assess_milestone_release, verify_project
 
 
 class FakeGitHub:
-    def snapshot(self, repo: str):
-        return GitHubSnapshot(repo=repo, merged_prs=3)
+    def snapshot(self, repo: str, lookback_days: int = 30, as_of=None):
+        assert lookback_days == 30
+        assert as_of is not None
+        return GitHubSnapshot(
+            repo=repo,
+            merged_prs=3,
+            window_start="2029-12-02T00:00:00+00:00",
+            window_end="2030-01-01T00:00:00+00:00",
+        )
+
+
+class UnavailableGitHub:
+    def snapshot(self, repo: str, lookback_days: int = 30, as_of=None):
+        return GitHubSnapshot(repo=repo, merged_prs=99, data_unavailable=True, error="rate limited")
 
 
 class FakeChain:
@@ -76,6 +88,27 @@ def test_verify_github_merged_prs_passes() -> None:
     assert report.dataSourceStatus["github"] == "available"
     assert "Result is PASS" in report.settlementRationale
     assert report.limitations
+
+
+def test_verify_unavailable_github_never_passes() -> None:
+    project = ProjectConfig.model_validate({
+        "slug": "veil-scout",
+        "name": "Veil Scout",
+        "description": "Real project",
+        "milestone": "Merge 1 PR",
+        "deadline": 1893456000,
+        "resolution_deadline": 1893456000,
+        "verification_rule": {
+            "type": "github_merged_prs",
+            "target": 1,
+            "lookbackDays": 30,
+            "github_repo": "Lingke-H/htx-web3-hackathon",
+        },
+    })
+    report = verify_project(project, 1, github_client=UnavailableGitHub())
+    assert report.passed is False
+    assert report.dataSourceStatus["github"] == "unavailable"
+    assert report.observedMetrics["mergedPrs"] == 99
 
 
 def test_verify_contract_event_count_passes() -> None:

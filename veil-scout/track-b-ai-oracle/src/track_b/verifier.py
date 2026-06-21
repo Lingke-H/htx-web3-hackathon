@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from .chain_client import ChainClient
 from .github_client import GitHubClient
 from .models import ChainSnapshot, EvidenceBundle, GitHubSnapshot, ProjectConfig, VerificationReport
@@ -54,11 +56,18 @@ def verify_project(
             raise RuntimeError("github_client is required for github_merged_prs")
         repo = rule.github_repo or project.github_repo
         assert repo is not None
-        github_snapshot = github_client.snapshot(repo)
+        resolution_timestamp = project.resolution_deadline or project.deadline
+        github_snapshot = github_client.snapshot(
+            repo,
+            lookback_days=rule.lookbackDays,
+            as_of=datetime.fromtimestamp(resolution_timestamp, tz=timezone.utc),
+        )
         data_sources.append("github")
         observed_value = github_snapshot.merged_prs or 0
         observed["githubRepo"] = repo
         observed["mergedPrs"] = observed_value
+        observed["windowStart"] = github_snapshot.window_start
+        observed["windowEnd"] = github_snapshot.window_end
         observed["dataUnavailable"] = github_snapshot.data_unavailable
         passed = (not github_snapshot.data_unavailable) and observed_value >= rule.target
         error = github_snapshot.error

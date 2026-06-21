@@ -31,5 +31,10 @@ def test_analyze_falls_back_without_api_key() -> None:
     assert report.aiPriorLabel == "AI Prior"
     assert report.confidence == "low"
     assert report.fallbackUsed is True
+    assert report.provider == "openai"
+    assert report.model == "gpt-4o-mini"
+    assert report.promptVersion == "veil-scout-ai-prior-v1"
+    assert len(report.inputDigest) == 64
+    assert len(report.evidenceDigest) == 64
     assert "manual review required" in report.riskFlags
     assert "neutral AI Prior" in report.bearish[0]

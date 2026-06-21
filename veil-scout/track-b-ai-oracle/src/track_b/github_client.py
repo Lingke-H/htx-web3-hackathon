@@ -19,10 +19,19 @@ class GitHubClient:
         if token:
             self.session.headers["Authorization"] = f"Bearer {token}"
 
-    def snapshot(self, repo: str, lookback_days: int = 30) -> GitHubSnapshot:
+    def snapshot(
+        self,
+        repo: str,
+        lookback_days: int = 30,
+        as_of: datetime | None = None,
+    ) -> GitHubSnapshot:
         try:
             repo_json = self._get(f"/repos/{repo}")
-            since = datetime.now(timezone.utc) - timedelta(days=lookback_days)
+            window_end = as_of or datetime.now(timezone.utc)
+            if window_end.tzinfo is None:
+                window_end = window_end.replace(tzinfo=timezone.utc)
+            window_end = window_end.astimezone(timezone.utc)
+            since = window_end - timedelta(days=lookback_days)
             commits = self._get(
                 f"/repos/{repo}/commits",
                 params={"since": since.isoformat(), "per_page": 100},
@@ -35,7 +44,12 @@ class GitHubClient:
             release = self._get_optional(f"/repos/{repo}/releases/latest")
             tags = self._get_optional(f"/repos/{repo}/tags", params={"per_page": 1})
 
-            merged_prs = [pr for pr in prs if pr.get("merged_at")]
+            merged_prs = [
+                pr
+                for pr in prs
+                if pr.get("merged_at")
+                and since <= self._parse_time(pr["merged_at"]) <= window_end
+            ]
             last_activity = self._latest_activity(repo_json, commits, merged_prs)
             return GitHubSnapshot(
                 repo=repo,
@@ -48,6 +62,8 @@ class GitHubClient:
                 latest_release=release.get("tag_name") if isinstance(release, dict) else None,
                 latest_tag=tags[0].get("name") if isinstance(tags, list) and tags else None,
                 last_activity_at=last_activity,
+                window_start=since.isoformat(),
+                window_end=window_end.isoformat(),
             )
         except requests.RequestException as exc:
             return GitHubSnapshot(repo=repo, data_unavailable=True, error=str(exc))
@@ -65,6 +81,10 @@ class GitHubClient:
         return response.json()
 
     @staticmethod
+    def _parse_time(value: str) -> datetime:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+
+    @staticmethod
     def _latest_activity(repo: dict[str, Any], commits: list[dict], merged_prs: list[dict]) -> str | None:
         candidates: list[str] = []
         for key in ("pushed_at", "updated_at"):
@@ -78,4 +98,3 @@ class GitHubClient:
             if pr.get("merged_at"):
                 candidates.append(pr["merged_at"])
         return max(candidates) if candidates else None
-

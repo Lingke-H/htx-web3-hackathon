@@ -33,12 +33,12 @@ export PATH="/opt/homebrew/opt/python@3.13/libexec/bin:$PATH"
 ## Commands
 
 ```bash
-python -m track_b.cli analyze --project data/projects/agentpay.json
-python -m track_b.cli create-market --project data/projects/agentpay.json --report data/reports/agentpay-ai-report.json
-python -m track_b.cli verify --project data/projects/agentpay.json --market-id 0
-python -m track_b.cli assess-release --project data/projects/agentpay.json --market-id 0 --vault-id 0 --milestone-id 1
-python -m track_b.cli settle --market-id 0 --verification data/settlements/agentpay-verification-market-0.json
-python -m track_b.cli demo --project data/projects/agentpay.json
+python -m track_b.cli analyze --project data/projects/veil-scout.json
+python -m track_b.cli create-market --project data/projects/veil-scout.json --report data/reports/veil-scout-ai-report.json
+python -m track_b.cli verify --project data/projects/veil-scout.json --market-id 0
+python -m track_b.cli assess-release --project data/projects/veil-scout.json --market-id 0 --vault-id 0 --milestone-id 1
+python -m track_b.cli settle --market-id 0 --verification data/settlements/veil-scout-verification-market-0.json
+python -m track_b.cli demo --project data/projects/veil-scout.json
 ```
 
 For local Anvil, deploy Track A first:
@@ -51,7 +51,7 @@ forge script script/DeployP0.s.sol:DeployP0 --rpc-url http://127.0.0.1:8545 --br
 
 ## Project Config Shape
 
-See `data/projects/agentpay.json`. The first verifier supports:
+See `data/projects/veil-scout.json`. The first verifier supports:
 
 - `contract_event_count`: pass when matching logs are at least `target`
 - `github_merged_prs`: pass when merged PR count is at least `target`
