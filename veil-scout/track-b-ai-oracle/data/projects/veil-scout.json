@@ -1,0 +1,20 @@
+{
+  "slug": "veil-scout",
+  "name": "Veil Scout",
+  "description": "AI-assisted builder discovery and milestone-incubation infrastructure for hackathons and ecosystem programs.",
+  "github_repo": "Lingke-H/htx-web3-hackathon",
+  "contract_addresses": [],
+  "milestone": "Merge at least one qualifying pull request during the 30-day evidence window before the June 30, 2026 resolution deadline.",
+  "deadline": 1782777600,
+  "season_id": 0,
+  "trading_deadline": 1782774000,
+  "resolution_deadline": 1782777600,
+  "force_void_deadline": 1782864000,
+  "project_owner": "0x0000000000000000000000000000000000001000",
+  "verification_rule": {
+    "type": "github_merged_prs",
+    "target": 1,
+    "lookbackDays": 30,
+    "github_repo": "Lingke-H/htx-web3-hackathon"
+  }
+}

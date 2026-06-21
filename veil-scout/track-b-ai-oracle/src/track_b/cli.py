@@ -8,9 +8,10 @@ from rich.console import Console
 from .analyst import analyze_project
 from .chain_client import ChainClient
 from .config import load_settings
+from .evidence import build_evidence_manifest, verify_evidence_manifest
 from .github_client import GitHubClient
-from .models import CreatedMarket, release_assessment_path, report_path, verification_path
-from .storage import load_project, load_report, load_verification, write_json
+from .models import CreatedMarket, release_assessment_path, verification_path
+from .storage import load_project, load_report, load_verification, write_analysis_artifacts, write_json
 from .verifier import assess_milestone_release, verify_project
 
 app = typer.Typer(help="Veil Scout Track B AI analyst and settlement oracle CLI.")
@@ -23,12 +24,40 @@ def analyze(project: Path = typer.Option(..., exists=True, readable=True)) -> Pa
     config = load_project(project)
     github = GitHubClient(settings.github_token).snapshot(config.github_repo) if config.github_repo else None
     report = analyze_project(config, github, settings.openai_model, settings.openai_api_key)
-    output = report_path(settings.data_dir, config.slug)
-    write_json(output, report)
+    if github is None:
+        raise typer.BadParameter("public AI evidence requires a configured GitHub repository")
+    output, snapshot_output = write_analysis_artifacts(settings.data_dir, report, github)
     console.print(f"[green]AI report written:[/green] {output}")
+    console.print(f"[green]GitHub snapshot written:[/green] {snapshot_output}")
     ai_prior = report.aiPriorProbability if report.aiPriorProbability is not None else report.probability
     console.print(f"aiPrior={ai_prior:.2f} confidence={report.confidence} fallback={report.fallbackUsed}")
     return output
+
+
+@app.command("build-evidence")
+def build_evidence(
+    evidence_dir: Path = typer.Option(..., exists=True, file_okay=False, readable=True, writable=True),
+    code_commit: str = typer.Option(...),
+) -> Path:
+    manifest = build_evidence_manifest(evidence_dir, code_commit)
+    output = evidence_dir / "manifest.json"
+    console.print(
+        f"[green]Evidence manifest written:[/green] {output} "
+        f"artifacts={len(manifest['artifacts'])}"
+    )
+    return output
+
+
+@app.command("verify-evidence")
+def verify_evidence(
+    evidence_dir: Path = typer.Option(..., exists=True, file_okay=False, readable=True),
+) -> Path:
+    manifest = verify_evidence_manifest(evidence_dir)
+    console.print(
+        f"[green]Evidence manifest verified:[/green] "
+        f"commit={manifest['codeCommit']} chain={manifest['chainId']}"
+    )
+    return evidence_dir / "manifest.json"
 
 
 @app.command("create-market")

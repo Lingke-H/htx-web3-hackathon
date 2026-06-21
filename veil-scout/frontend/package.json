@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:copy": "node scripts/verify-judge-copy.mjs",
+    "test:unit": "node --test lib/public-proof.test.ts"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.11",

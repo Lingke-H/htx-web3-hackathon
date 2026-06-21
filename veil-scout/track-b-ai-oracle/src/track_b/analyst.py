@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 
 from openai import OpenAI
 from pydantic import ValidationError
@@ -14,6 +15,13 @@ Return compact JSON only. The value is an AI Prior, not market price or odds.
 AI Prior probability must be 0.05 to 0.95.
 Do not claim certainty when data is missing."""
 
+PROMPT_VERSION = "veil-scout-ai-prior-v1"
+
+
+def canonical_digest(payload: object) -> str:
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return sha256(encoded.encode("utf-8")).hexdigest()
+
 
 def analyze_project(
     project: ProjectConfig,
@@ -22,13 +30,27 @@ def analyze_project(
     api_key: str | None,
 ) -> AIReport:
     evidence = EvidenceBundle(github=github)
+    evidence_payload = evidence.model_dump(mode="json")
+    evidence_digest = canonical_digest(evidence_payload)
+    input_payload = {
+        "project": project.model_dump(mode="json"),
+        "githubSnapshot": github.model_dump(mode="json") if github else None,
+        "promptVersion": PROMPT_VERSION,
+    }
+    input_digest = canonical_digest(input_payload)
     if not api_key:
-        return fallback_report(project, evidence, "OPENAI_API_KEY is not set")
+        return fallback_report(
+            project,
+            evidence,
+            "OPENAI_API_KEY is not set",
+            model=model,
+            input_digest=input_digest,
+            evidence_digest=evidence_digest,
+        )
 
     client = OpenAI(api_key=api_key)
     payload = {
-        "project": project.model_dump(mode="json"),
-        "githubSnapshot": github.model_dump(mode="json") if github else None,
+        **input_payload,
         "requiredSchema": {
             "probability": "number 0.05-0.95, treated as AI Prior only",
             "aiPriorProbability": "same number as probability; frontend label is AI Prior",
@@ -68,13 +90,33 @@ def analyze_project(
             settleable=bool(parsed.get("settleable", False)),
             dataSourcesUsed=as_list(parsed.get("dataSourcesUsed")) or inferred_sources(github),
             suggestedQuestion=parsed.get("suggestedQuestion") or default_question(project),
+            provider="openai",
+            model=model,
+            promptVersion=PROMPT_VERSION,
+            inputDigest=input_digest,
+            evidenceDigest=evidence_digest,
             evidence=evidence,
         )
     except (Exception, ValidationError) as exc:
-        return fallback_report(project, evidence, str(exc))
+        return fallback_report(
+            project,
+            evidence,
+            str(exc),
+            model=model,
+            input_digest=input_digest,
+            evidence_digest=evidence_digest,
+        )
 
 
-def fallback_report(project: ProjectConfig, evidence: EvidenceBundle | None, error: str) -> AIReport:
+def fallback_report(
+    project: ProjectConfig,
+    evidence: EvidenceBundle | None,
+    error: str,
+    *,
+    model: str,
+    input_digest: str,
+    evidence_digest: str,
+) -> AIReport:
     return AIReport(
         projectSlug=project.slug,
         probability=0.50,
@@ -88,6 +130,11 @@ def fallback_report(project: ProjectConfig, evidence: EvidenceBundle | None, err
         dataSourcesUsed=inferred_sources(evidence.github if evidence else None),
         suggestedQuestion=default_question(project),
         fallbackUsed=True,
+        provider="openai",
+        model=model,
+        promptVersion=PROMPT_VERSION,
+        inputDigest=input_digest,
+        evidenceDigest=evidence_digest,
         error=error,
         evidence=evidence,
     )

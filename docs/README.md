@@ -2,6 +2,16 @@
 
 The documentation is grouped by purpose so the repo root stays focused on runnable code.
 
+## Final Submission — Start Here
+
+- [Canonical submission](submission/final-submission.md)
+- [Demo and verification evidence](submission/demo-evidence.md)
+- [HTX ecosystem resource disclosure](submission/ecosystem-resource-disclosure.md)
+- [Final submission checklist](submission/final-submission-checklist.md)
+- [Judge Q&A](submission/p08-judge-qa.md)
+
+P0 and P0.8 documents below are supporting implementation history. When wording differs, the canonical submission and evidence files above control the judge-facing claim.
+
 ## Vision
 
 - `vision/oracle-of-truth-en.md`

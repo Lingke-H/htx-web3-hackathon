@@ -6,7 +6,7 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
-from .models import AIReport, CreatedMarket, ProjectConfig, VerificationReport
+from .models import AIReport, CreatedMarket, GitHubSnapshot, ProjectConfig, VerificationReport
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
@@ -28,6 +28,18 @@ def write_json(path: Path, payload: BaseModel | dict) -> Path:
     return path
 
 
+def write_analysis_artifacts(
+    data_dir: Path,
+    report: AIReport,
+    github: GitHubSnapshot,
+) -> tuple[Path, Path]:
+    report_output = data_dir / "reports" / f"{report.projectSlug}-ai-report.json"
+    snapshot_output = data_dir / "reports" / f"{report.projectSlug}-github-snapshot.json"
+    write_json(report_output, report)
+    write_json(snapshot_output, github)
+    return report_output, snapshot_output
+
+
 def load_project(path: Path) -> ProjectConfig:
     return ProjectConfig.model_validate(read_json(path))
 
@@ -42,4 +54,3 @@ def load_verification(path: Path) -> VerificationReport:
 
 def load_created_market(path: Path) -> CreatedMarket:
     return CreatedMarket.model_validate(read_json(path))
-

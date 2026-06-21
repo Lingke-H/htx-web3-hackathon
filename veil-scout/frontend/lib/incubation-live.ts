@@ -75,7 +75,7 @@ type IncubationPanelState = {
 const configuredVaultAddress = process.env.NEXT_PUBLIC_INCUBATION_VAULT_ADDRESS;
 const configuredVaultId = process.env.NEXT_PUBLIC_INCUBATION_VAULT_ID;
 const configuredRpcUrl = process.env.NEXT_PUBLIC_RPC_URL?.trim();
-const configuredChainId = process.env.NEXT_PUBLIC_INCUBATION_CHAIN_ID;
+const configuredChainId = process.env.NEXT_PUBLIC_CHAIN_ID ?? process.env.NEXT_PUBLIC_INCUBATION_CHAIN_ID;
 const configuredProjectName = process.env.NEXT_PUBLIC_INCUBATION_SELECTED_PROJECT;
 
 function localizedMessage(locale: Locale, english: string, chinese: string) {
