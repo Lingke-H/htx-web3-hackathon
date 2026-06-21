@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, ChevronRight, ShieldAlert } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
+import { PublicProofPanel } from "@/components/public-proof-panel";
 import { CommandLog } from "@/components/sci-fi/command-log";
 import { HologramCard } from "@/components/sci-fi/hologram-card";
 import { MarketConstellation } from "@/components/sci-fi/market-constellation";
@@ -933,6 +934,8 @@ export function DemoPreview() {
             </HologramCard>
           </div>
         </section>
+
+        <PublicProofPanel address={address} chainId={chainId} locale={locale} />
 
         <section className="grid gap-5 xl:grid-cols-[minmax(0,1.18fr)_360px]" id="incubation">
           <div className="min-w-0 space-y-5">

@@ -72,6 +72,8 @@ jobs:
         run: npm ci
       - name: Judge-facing copy checks
         run: npm run test:copy
+      - name: Frontend unit tests
+        run: npm run test:unit
       - name: Frontend lint
         run: npm run lint
       - name: Frontend build
