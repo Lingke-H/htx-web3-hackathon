@@ -30,6 +30,8 @@ required_files=(
   "docs/submission/final-submission.md"
   "docs/submission/demo-evidence.md"
   "docs/submission/ecosystem-resource-disclosure.md"
+  "docs/submission/program-operator-business-case.md"
+  "docs/submission/base-sepolia-runbook.md"
   "docs/submission/final-submission-checklist.md"
 )
 
@@ -41,8 +43,11 @@ canonical_pitch="Most hackathons stop at ranking. Veil Scout turns ranking into 
 require_text "README.md" "$canonical_pitch"
 require_text "docs/submission/final-submission.md" "$canonical_pitch"
 require_text "docs/submission/ecosystem-resource-disclosure.md" "No organizer resource integration claimed"
+require_text "docs/submission/program-operator-business-case.md" "There are no customer interviews or product-market fit claims"
+require_text "docs/submission/base-sepolia-runbook.md" "Base Sepolia"
 require_text "docs/submission/demo-evidence.md" "Not deployed"
 require_text "docs/submission/final-submission-checklist.md" "Not supplied"
+require_text "docs/submission/final-submission-checklist.md" "Demo video is deferred until semi-finals / Top 40"
 
 judge_files=(
   "README.md"
@@ -60,6 +65,12 @@ for path in "${judge_files[@]}"; do
     fail "$path contains an unqualified organizer-resource implementation claim"
   fi
 done
+
+if [[ -f "veil-scout/frontend/public/evidence/manifest.json" ]]; then
+  if ! (cd veil-scout/track-b-ai-oracle && python3 -m track_b.cli verify-evidence --evidence-dir ../frontend/public/evidence); then
+    fail "public evidence manifest exists but failed verification"
+  fi
+fi
 
 if ! python3 - "$ROOT_DIR" <<'PY'
 import re

@@ -20,6 +20,20 @@ flowchart LR
     L --> M["Authorized reviewer releases fixed sponsor units"]
 ```
 
+## Public Proof Data Flow
+
+```mermaid
+flowchart LR
+    A["Veil Scout repo evidence"] --> B["GitHub 30-day snapshot"]
+    B --> C["OpenAI AI Prior with provenance"]
+    C --> D["Evidence manifest / SHA-256 digests"]
+    D --> E["Base Sepolia market + vault reads"]
+    E --> F["Public Proof panel"]
+    F --> G["Guarded releaseMilestone action"]
+```
+
+The Public Proof panel must verify the manifest, artifact digests, chain ID `84532`, non-zero addresses, passing verification, active vault, unreleased milestone, connected chain, and `ORACLE_ROLE` before it enables release.
+
 ## Trust Boundary
 
 ```mermaid

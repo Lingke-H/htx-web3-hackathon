@@ -46,9 +46,15 @@ P0.8 does not claim a complete anti-fraud system. It uses explicit verification 
 - incubation-vault milestone accounting
 - pause and refund state transitions
 
+The repository also includes Base Sepolia seed/finalize scripts and a Public Proof frontend panel. Actual public proof should be judged only after the evidence manifest and explorer links are present; no zero-address or fallback evidence should be treated as deployed proof.
+
 ## How does HTX or a sponsor benefit?
 
 HTX or a sponsor gets a cleaner funnel: discovery signal during the hackathon, then a structured follow-through lane after the hackathon, without committing to full production finance rails on day one.
+
+## What is the business buyer?
+
+The first buyer is a program operator: hackathon organizer, grant program, incubator, launchpad, or developer ecosystem team. The product replaces loose judging notes and manual follow-up spreadsheets with a workflow that preserves AI evidence, human correction, settlement, scout reputation, and milestone review. There are no customer-interview or product-market-fit claims yet.
 
 ## Which HTX resources are integrated today?
 

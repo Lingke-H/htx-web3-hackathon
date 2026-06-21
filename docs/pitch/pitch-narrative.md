@@ -19,7 +19,7 @@ The market discovers signal. The incubation vault creates follow-through.
 3. Open a settled example and show the predefined verification criterion, observed metrics, data-source status, rationale, and limitations.
 4. Show settlement and the persistent scout-reputation outcome.
 5. Move to incubation: the selected builder has three milestones, one released tranche, one under review, and one locked.
-6. Point to the data-source badge: public mode is seeded fallback; local Anvil mode reads the incubation contract.
+6. Point to the Public Proof panel: if Base Sepolia evidence is configured, it verifies manifest digests and reads the market, odds, leaderboard, vault, and milestones; otherwise it clearly stays in seeded fallback.
 
 ## 2:05–2:30 — Honest Boundaries
 
@@ -35,7 +35,7 @@ This is deliberate: the demo proves the lifecycle without pretending the prototy
 
 HTX can use this pattern as a builder pipeline: discover credible teams during a program, preserve transparent evidence and scout signal, then monitor real follow-through after demo day. The same workflow can serve hackathons, grants, incubators, and launchpads.
 
-P0.8 does not claim HTX API, B.AI, or `$HTX` integration. Those are roadmap options only after validation.
+P0.8 does not claim HTX API, B.AI, or `$HTX` integration. The commercial wedge is a program-operator workflow for hackathons, grants, incubators, and ecosystem teams; organizer-resource integrations are roadmap options only after validation.
 
 ## 2:50–3:00 — Close
 

@@ -4,9 +4,9 @@
 
 **HTX Web3 Hackathon · AI x Web3**
 
-[Public presentation demo](https://frontend-six-sigma-mw8xaa81il.vercel.app) · [Final submission](docs/submission/final-submission.md) · [Demo evidence](docs/submission/demo-evidence.md) · [Architecture](docs/pitch/demo-diagrams.md)
+[Public presentation demo](https://frontend-six-sigma-mw8xaa81il.vercel.app) · [Final submission](docs/submission/final-submission.md) · [Demo evidence](docs/submission/demo-evidence.md) · [Business case](docs/submission/program-operator-business-case.md) · [Architecture](docs/pitch/demo-diagrams.md)
 
-> **Demo status:** the public site is a labeled, read-only presentation build with seeded market data. For live local contract deployment and incubation reads, run the reproducible Anvil demo below.
+> **Demo status:** the codebase is public-proof ready. Until the Base Sepolia evidence bundle is generated, the public site shows a labeled seeded fallback and never presents fallback rows as on-chain proof. For live local contract deployment and incubation reads, run the reproducible Anvil demo below.
 
 ```bash
 bash veil-scout/scripts/run-live-demo.sh
@@ -27,9 +27,9 @@ The discovery market generates signal. The incubation vault creates follow-throu
 
 | Status | Scope |
 | --- | --- |
-| **Implemented** | contracts, non-transferable credits, Crowd Odds, AI/verification reports, trusted settlement, reputation, incubation accounting, bilingual UI, CI, local E2E |
-| **Demo-grade** | trusted oracle/reviewer roles, seeded market rows, sponsor-unit accounting, public fallback data |
-| **Roadmap** | optimistic oracle/challenges, production custody, public testnet, HTX APIs, B.AI, `$HTX`, permissionless disputes |
+| **Implemented** | contracts, non-transferable credits, Crowd Odds, AI provenance, GitHub-window verification, evidence manifest gates, Base Sepolia seed/finalize scripts, trusted settlement, reputation, incubation accounting, bilingual UI, CI, local E2E |
+| **Demo-grade** | trusted oracle/reviewer roles, seeded fallback rows, sponsor-unit accounting, public proof pending real Base Sepolia secrets/funds |
+| **Roadmap** | optimistic oracle/challenges, anti-Sybil hardening, production custody, formal ecosystem adapters, permissionless disputes |
 
 Sponsor units do not custody or transfer tokens. AI and oracle reports are advisory. There is no AMM, LP exposure, automatic investment, governance, or real-money prediction market.
 
@@ -56,7 +56,7 @@ See the [detailed architecture and trust-boundary diagrams](docs/pitch/demo-diag
 
 Veil Scout gives an ecosystem program operator a concrete funnel: discover credible builders during a hackathon, preserve evidence and scout signal, then monitor execution after the event. It can support hackathons, grants, incubators, launchpads, and ecosystem due diligence.
 
-P0.8 claims no current HTX API, B.AI, or `$HTX` integration. See the [resource disclosure](docs/submission/ecosystem-resource-disclosure.md).
+P0.8 claims no current HTX API, B.AI, or `$HTX` integration. The business case is a program-operator workflow, not a fabricated organizer-resource integration. See the [resource disclosure](docs/submission/ecosystem-resource-disclosure.md) and [business case](docs/submission/program-operator-business-case.md).
 
 ## Local Demo
 
@@ -97,6 +97,7 @@ pytest
 
 cd ../frontend
 npm run test:copy
+npm run test:unit
 npm run lint
 npm run build
 
@@ -125,6 +126,8 @@ veil-scout/
 - [Final submission](docs/submission/final-submission.md)
 - [Demo and verification evidence](docs/submission/demo-evidence.md)
 - [HTX ecosystem resource disclosure](docs/submission/ecosystem-resource-disclosure.md)
+- [Program-operator business case](docs/submission/program-operator-business-case.md)
+- [Base Sepolia public proof runbook](docs/submission/base-sepolia-runbook.md)
 - [Final submission checklist](docs/submission/final-submission-checklist.md)
 - [Judge Q&A](docs/submission/p08-judge-qa.md)
 - [Pitch narrative](docs/pitch/pitch-narrative.md)
